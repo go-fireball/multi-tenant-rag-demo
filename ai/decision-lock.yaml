@@ -6,7 +6,9 @@ approved_exceptions:
   - "Browser UUID may be used as a temporary userId fallback only if Google OAuth is deferred during PoC setup"
 approved_decisions:
   - "Use a full TypeScript stack: Nuxt 4 for UI plus server routes and AWS CDK in TypeScript"
+  - "Project-specific architecture decisions override generic baton defaults: use Nuxt 4 instead of React/Next.js and prefer Google OAuth over Cognito for the PoC path"
   - "Target a monorepo baseline with a root workspace package manager setup, shared TypeScript config, and app code rooted at apps/web plus infra/cdk"
+  - "Because the repo is currently empty, prefer npm workspaces as the simplest baseline unless a later item establishes a stronger reason to change package-manager strategy"
   - "Do not introduce a separate API service; backend logic stays in Nuxt server/api routes"
   - "Deploy the same application image per tenant with TENANT_ID injected by environment configuration"
   - "Use Aurora PostgreSQL Serverless v2 as the shared cluster with separate tenant vector schemas"
