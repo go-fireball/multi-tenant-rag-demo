@@ -231,7 +231,16 @@ Strict terminal contract (must output exactly one when ending):
 
   echo "[$ts] STEP $step START role=$current_role executor=$EXECUTOR model=$MODEL" | tee -a ai/logs/baton.log
 
-  build_exec_cmd "$prompt"
+  output_last_message_file=""
+  if [[ "$EXECUTOR" == "codex" ]]; then
+    if [[ $DRY_RUN -eq 1 ]]; then
+      output_last_message_file="OUTPUT_LAST_MESSAGE_FILE"
+    else
+      output_last_message_file="$(mktemp)"
+    fi
+  fi
+
+  build_exec_cmd "$prompt" "$output_last_message_file"
   if [[ $DRY_RUN -eq 1 ]]; then
     echo "DRY RUN: would invoke: ${cmd[*]}"
     exit 0
@@ -239,12 +248,7 @@ Strict terminal contract (must output exactly one when ending):
 
   check_cli
   step_log="$(mktemp)"
-  output_last_message_file=""
-  if [[ "$EXECUTOR" == "codex" ]]; then
-    output_last_message_file="$(mktemp)"
-  fi
   set +e
-  build_exec_cmd "$prompt" "$output_last_message_file"
   case "$(uname -s)" in
     MINGW*|MSYS*|CYGWIN*) "${cmd[@]}" 2>&1 | tee "$step_log"; rc=${PIPESTATUS[0]} ;;
     *) script -q -c "$(printf '%q ' "${cmd[@]}")" "$step_log"; rc=$? ;;
