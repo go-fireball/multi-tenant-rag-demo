@@ -219,6 +219,18 @@ Use this file for reviewer outcomes:
 - The current codebase still contains placeholder-only CDK stacks in [infra/cdk/lib/shared-stack.ts](/home/sundaram/code/multi-tenant-rag-demo/infra/cdk/lib/shared-stack.ts) and [infra/cdk/lib/tenant-stack.ts](/home/sundaram/code/multi-tenant-rag-demo/infra/cdk/lib/tenant-stack.ts); engineering should treat that as debt to replace, not a scaffold to decorate with more outputs.
 - `ai/requirements.md` remains template residue and is not authoritative for this item. Source of truth is `ai/goal.yaml`, `ai/prd.yaml`, `ai/active_item.yaml`, `ai/decision-lock.yaml`, and the item-specific simplification rules.
 
+## 2026-04-02 SENIOR_JUDGMENTAL_ENGINEER
+
+- **REVISE**: `ITEM-0004` stays in engineering as a narrow shared-schema alignment fix. There is no product ambiguity and no reason to escalate to the user.
+- The validator’s concern is real and concrete in the current code: [infra/cdk/lib/shared-stack.ts](/home/sundaram/code/multi-tenant-rag-demo/infra/cdk/lib/shared-stack.ts) still defines `app.sessions.session_id`, `app.messages.message_id`, `app.messages.attachment_ids`, and omits `app.messages.user_id` plus `app.session_files.storage_bucket`, while [apps/web/server/utils/chat-store.ts](/home/sundaram/code/multi-tenant-rag-demo/apps/web/server/utils/chat-store.ts) persists the Aurora-shaped contract with `id`, `user_id`, `attached_files`, and both storage location fields.
+- Do not solve this by rewriting the app contract. The locked decision is to align the shared Aurora bootstrap DDL to the existing Nuxt persistence seam, not the other way around.
+- Preserve the accepted infra architecture and deploy-path decisions: keep the SharedStack/TenantStack/UIStack split, keep the ordered-statement Aurora custom resource, keep the EventBridge scheduler approach, and keep the CDK container-asset image path. This pass is a schema correction, not a redesign opportunity.
+- Required engineer exit criteria are narrow and explicit:
+  - Update the shared `app.sessions` table to use primary key column `id`.
+  - Update the shared `app.messages` table to use `id`, `tenant_id`, `session_id`, `user_id`, `role`, `content`, `citations`, `attached_files`, and `created_at`, with compatible foreign keys back to `app.sessions(id)`.
+  - Update the shared `app.session_files` table so it includes both `storage_bucket` and `storage_key` while preserving tenant/user/session ownership fields and the foreign key to `app.sessions(id)`.
+  - Re-run `cd apps/web && npm run build` and `cd infra/cdk && npm run synth` after the DDL correction.
+
 ## 2026-04-02 ENGINEER
 
 - Narrowed the Aurora schema bootstrap inputs without changing the accepted provider-backed custom resource contract.
