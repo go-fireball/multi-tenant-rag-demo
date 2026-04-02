@@ -1,4 +1,4 @@
-Script started on 2026-04-01 20:20:35-05:00 [COMMAND="codex exec --model gpt-5.4 --dangerously-bypass-approvals-and-sandbox --output-last-message /tmp/tmp.iu9UWYgPrl $'Current role: VALIDATOR\nSource of truth: ai/active_agent.txt\nLoad and follow this role prompt exactly: ai/prompts/03-validator.md\nDo not route from ai/next_agent.yaml role config.\nStrict terminal contract (must output exactly one when ending):\n- FINISHED: HANDING TO <ROLE>\n- WAITING FOR USER\n- WAITING FOR BATON\n\nHandoff notes:\nHandoff from ENGINEER at 2026-04-02T01:20:35Z' " TERM="xterm-256color" TTY="/dev/pts/1" COLUMNS="184" LINES="43"]
+Script started on 2026-04-01 20:48:05-05:00 [COMMAND="codex exec --model gpt-5.4 --dangerously-bypass-approvals-and-sandbox --output-last-message /tmp/tmp.7XhhSLWzSU $'Current role: VALIDATOR\nSource of truth: ai/active_agent.txt\nLoad and follow this role prompt exactly: ai/prompts/03-validator.md\nDo not route from ai/next_agent.yaml role config.\nStrict terminal contract (must output exactly one when ending):\n- FINISHED: HANDING TO <ROLE>\n- WAITING FOR USER\n- WAITING FOR BATON\n\nHandoff notes:\nHandoff from ENGINEER at 2026-04-02T01:48:05Z' " TERM="xterm-256color" TTY="/dev/pts/1" COLUMNS="184" LINES="43"]
 OpenAI Codex v0.118.0 (research preview)
 --------
 [1mworkdir:[0m /home/sundaram/code/multi-tenant-rag-demo
@@ -8,7 +8,7 @@ OpenAI Codex v0.118.0 (research preview)
 [1msandbox:[0m danger-full-access
 [1mreasoning effort:[0m medium
 [1mreasoning summaries:[0m none
-[1msession id:[0m 019d4bc7-24a4-73f0-ae45-8b2a0cf04849
+[1msession id:[0m 019d4be0-5393-7583-92e0-03359bc65c2a
 --------
 [36muser[0m
 Current role: VALIDATOR
@@ -21,13 +21,13 @@ Strict terminal contract (must output exactly one when ending):
 - WAITING FOR BATON
 
 Handoff notes:
-Handoff from ENGINEER at 2026-04-02T01:20:35Z
+Handoff from ENGINEER at 2026-04-02T01:48:05Z
 [35m[3mcodex[0m[0m
-I’m loading the validator role prompt and the declared source-of-truth file first, then I’ll validate the current workspace against that contract and end with the required terminal status line only.
-[35m[3mexec[0m[0m
-[1m/bin/bash -lc "sed -n '1,260p' ai/prompts/03-validator.md"[0m in /home/sundaram/code/multi-tenant-rag-demo
+I’m loading the validator role prompt and the active agent file first, then I’ll validate the current workspace state against that contract and produce the required terminal-style handoff line.
 [35m[3mexec[0m[0m
 [1m/bin/bash -lc "sed -n '1,200p' ai/active_agent.txt"[0m in /home/sundaram/code/multi-tenant-rag-demo
+[35m[3mexec[0m[0m
+[1m/bin/bash -lc "sed -n '1,220p' ai/prompts/03-validator.md"[0m in /home/sundaram/code/multi-tenant-rag-demo
 [32m succeeded in 0ms:[0m
 # ROLE: VALIDATOR
 
@@ -72,8 +72,13 @@ I’m loading the validator role prompt and the declared source-of-truth file fi
 [32m succeeded in 0ms:[0m
 VALIDATOR
 
+[35m[3mexec[0m[0m
+[1m/bin/bash -lc 'git status --short'[0m in /home/sundaram/code/multi-tenant-rag-demo
+[32m succeeded in 0ms:[0m
+ M ai/logs/baton.log
+
 [35m[3mcodex[0m[0m
-The role contract is active. I’m gathering the goal, constraints, review state, and the actual code/test deltas under `apps/` and `infra/` before deciding whether this is a clean handoff or an escalation.
+The baton is valid. I’m reading the required coordination files and the code/test deltas next so I can validate correctness and decide whether this should go back to planning or escalate.
 [35m[3mexec[0m[0m
 [1m/bin/bash -lc "sed -n '1,220p' ai/goal.yaml"[0m in /home/sundaram/code/multi-tenant-rag-demo
 [32m succeeded in 0ms:[0m
@@ -173,15 +178,17 @@ related_files:
 acceptance_criteria:
   - "The item stays inside infra/cdk plus minimal app-local deployment/config files under apps/web if needed for containerization or ECS runtime wiring; no root workspace/bootstrap changes and no separate backend service are introduced"
   - "SharedStack provisions real CDK resources for the PoC baseline: VPC, ECS cluster, ALB, Aurora Serverless v2, database/admin secret handling in Secrets Manager, ECR repository, shared attachments bucket, and coherent shared logging/parameter outputs instead of placeholder-only stacks"
+  - "The shared Aurora app-schema bootstrap matches the existing Nuxt persistence contract in apps/web: `app.sessions.id`, `app.messages.id`, `app.messages.tenant_id`, `app.messages.user_id`, `app.messages.attached_files`, and `app.session_files.storage_bucket` are present with compatible ownership and reference columns"
   - "TenantStack provisions one-tenant-per-stack resources and permissions for the locked isolation model: tenant docs bucket, Bedrock Knowledge Base, Bedrock Agent plus alias, tenant schema setup/custom-resource path, scheduler for KB sync, and tenant-scoped IAM/log resources"
   - "UIStack provisions one ECS/Fargate service per tenant behind the shared ALB, wiring the same application image with deploy-time tenant env vars and secret-backed runtime config for the existing Nuxt SSR app"
   - "The CDK app includes a concrete tenant configuration source and stack instantiation path for SharedStack, TenantStack, and UIStack so `cdk deploy --all` is the intended local-package workflow"
   - "The slice preserves the current product constraints: Nuxt server routes remain the only app backend, tenant identity stays deploy-time server config rather than caller input, and no fake shared Bedrock/KB shortcut is introduced"
   - "The slice may use pragmatic PoC simplifications for difficult AWS edges, but it must not defer the named stack/resource categories into placeholders, manual console steps, or comments-only TODOs"
+  - "This revise pass is limited to schema-contract alignment and verification; it must not reopen the accepted SharedStack/TenantStack/UIStack split, replace the provider-backed ordered-statement Aurora custom resource, or reintroduce a hidden image-push/manual-ingestion prerequisite"
 done_definition:
   - "Backlog marks ITEM-0003 done and advances ITEM-0004 as the current in-progress slice without disturbing the remaining sequence"
-  - "Decision locks capture the required SharedStack, TenantStack, and UIStack boundaries, the same-image-per-tenant deployment contract, and the acceptable PoC simplifications for AWS wiring"
-  - "ai/next_agent.md tells SENIOR_JUDGMENTAL_ENGINEER exactly what to validate: concrete CDK resource scope, tenant-isolated Bedrock and ECS wiring, deployment/config assumptions, and what still must remain out of scope"
+  - "Decision locks capture the required SharedStack, TenantStack, and UIStack boundaries, the same-image-per-tenant deployment contract, the accepted PoC simplifications for AWS wiring, and the narrowed shared-schema alignment fix"
+  - "ai/next_agent.md tells SENIOR_JUDGMENTAL_ENGINEER to preserve the accepted infra design and route only the shared-schema contract correction plus build/synth re-verification"
 
 [35m[3mexec[0m[0m
 [1m/bin/bash -lc "sed -n '1,260p' ai/review.md"[0m in /home/sundaram/code/multi-tenant-rag-demo
@@ -409,37 +416,46 @@ Use this file for reviewer outcomes:
 
 ## 2026-04-02 ENGINEER
 
-- Implemented `ITEM-0004` across `infra/cdk` and the minimal app-local deployment surface in `apps/web`.
-- Replaced the placeholder CDK stack wiring with:
-  - a concrete shared stack for VPC, ECS cluster, ALB/listener, Aurora Serverless v2, shared attachments bucket, ECR repository, shared guardrail, shared log/SSM outputs, and shared Data API schema bootstrap;
-  - a per-tenant stack for docs bucket, Aurora vector-schema bootstrap, Bedrock knowledge base, Bedrock data source, Bedrock agent plus alias, tenant runtime secret, tenant log group, and daily ingestion schedule shim;
-  - a per-tenant UI stack for the same-image-per-tenant ECS/Fargate service, listener-rule wiring, task/execution roles, health checks, and tenant env plus secret-backed runtime config.
-- Added an in-repo tenant/environment config source at `infra/cdk/config/tenants.ts`, and updated `infra/cdk/bin/app.ts` to instantiate one shared stack plus tenant/UI stacks for `tenant-a` and `tenant-b` from that config.
-- Added `apps/web/Dockerfile`, `apps/web/.dockerignore`, and an app-local `start` script so the Nuxt app can be built and pushed as the shared ECS image.
+- Implemented the narrow `ITEM-0004` revise pass by correcting the shared Aurora `app` schema DDL in [shared-stack.ts](/home/sundaram/code/multi-tenant-rag-demo/infra/cdk/lib/shared-stack.ts) to match the existing Nuxt persistence contract in [chat-store.ts](/home/sundaram/code/multi-tenant-rag-demo/apps/web/server/utils/chat-store.ts).
+- Updated `app.sessions` to use primary key column `id`, updated `app.messages` to use `id`, include `user_id`, reference `sessions(id)`, and store `attached_files`, and updated `app.session_files` to reference `sessions(id)` and include `storage_bucket`.
+- Left the accepted stack boundaries and ordered-statement Aurora custom resource unchanged.
 - Verification performed:
   - `cd apps/web && npm run build` succeeded.
-  - `cd infra/cdk && npm run build` succeeded.
-  - `cd infra/cdk && npm run synth` succeeded and synthesized `SharedStack-dev`, both tenant stacks, and both UI stacks.
-- Remaining validator focus:
-  - CDK synth still emits an intentional warning on the `AwsApi` ingestion-schedule shim because the EventBridge target helper does not recognize `BedrockAgent` as an SDK service name. The stack still synthesizes cleanly; validate whether this PoC shim is acceptable or should be treated as too weak for the item.
-  - The UI services assume the shared ECR repository contains the configured shared image tag (`latest`) before `cdk deploy --all` attempts to stabilize ECS tasks.
-- Required implementation shape:
-  - add a concrete CDK app instantiation path that creates one shared stack and per-tenant tenant/UI stacks from an in-repo tenant config source;
-  - provision real PoC resources for the locked stack categories rather than placeholder descriptions;
-  - preserve the same-image-per-tenant ECS contract and keep tenant identity deploy-time/server-side.
-- Acceptable PoC shortcuts:
-  - thin custom resources or lower-level CDK constructs where Bedrock or schema bootstrap coverage is awkward;
-  - minimal ALB routing and ECS scaling defaults;
-  - secret-backed runtime wiring that is coherent for deployment even if production hardening remains deferred.
-- Reject these failure modes:
-  - no separate API service or Lambda application backend;
-  - no fake shared Bedrock agent/KB shortcut;
-  - no root-workspace/bootstrap churn;
-  - no manual console-only setup for required resources;
-  - no comments-only TODO substitutions for named acceptance-criteria resources.
+  - `cd infra/cdk && npm run synth` succeeded.
+
+## 2026-04-02 SENIOR_JUDGMENTAL_ENGINEER
+
+- **REVISE**: `ITEM-0004` stays in engineering as a narrow shared-schema alignment fix. There is no product ambiguity and no reason to escalate to the user.
+- The validator’s concern is real and concrete in the current code: [infra/cdk/lib/shared-stack.ts](/home/sundaram/code/multi-tenant-rag-demo/infra/cdk/lib/shared-stack.ts) still defines `app.sessions.session_id`, `app.messages.message_id`, `app.messages.attachment_ids`, and omits `app.messages.user_id` plus `app.session_files.storage_bucket`, while [apps/web/server/utils/chat-store.ts](/home/sundaram/code/multi-tenant-rag-demo/apps/web/server/utils/chat-store.ts) persists the Aurora-shaped contract with `id`, `user_id`, `attached_files`, and both storage location fields.
+- Do not solve this by rewriting the app contract. The locked decision is to align the shared Aurora bootstrap DDL to the existing Nuxt persistence seam, not the other way around.
+- Preserve the accepted infra architecture and deploy-path decisions: keep the SharedStack/TenantStack/UIStack split, keep the ordered-statement Aurora custom resource, keep the EventBridge scheduler approach, and keep the CDK container-asset image path. This pass is a schema correction, not a redesign opportunity.
+- Required engineer exit criteria are narrow and explicit:
+  - Update the shared `app.sessions` table to use primary key column `id`.
+  - Update the shared `app.messages` table to use `id`, `tenant_id`, `session_id`, `user_id`, `role`, `content`, `citations`, `attached_files`, and `created_at`, with compatible foreign keys back to `app.sessions(id)`.
+  - Update the shared `app.session_files` table so it includes both `storage_bucket` and `storage_key` while preserving tenant/user/session ownership fields and the foreign key to `app.sessions(id)`.
+  - Re-run `cd apps/web && npm run build` and `cd infra/cdk && npm run synth` after the DDL correction.
+
+## 2026-04-02 ENGINEER
+
+- Narrowed the Aurora schema bootstrap inputs without changing the accepted provider-backed custom resource contract.
+- [shared-stack.ts](/home/sundaram/code/multi-tenant-rag-demo/infra/cdk/lib/shared-stack.ts#L27) now passes complete shared-schema DDL statements for `app.sessions`, `app.messages`, and `app.session_files` rather than line-by-line SQL fragments.
+- [tenant-stack.ts](/home/sundaram/code/multi-tenant-rag-demo/infra/cdk/lib/tenant-stack.ts#L31) now constructs complete per-tenant `CREATE SCHEMA`, `CREATE EXTENSION`, `CREATE TABLE`, and HNSW `CREATE INDEX` statements before wiring them into `AuroraSchema`.
+- Left [aurora-schema.ts](/home/sundaram/code/multi-tenant-rag-demo/infra/cdk/lib/constructs/aurora-schema.ts) unchanged on purpose: it already executes one ordered Data API `ExecuteStatement` per statement, keeps update stability via the same physical resource id, and remains a no-op on delete.
+- Verification performed:
+  - `cd apps/web && npm run build`
+  - `cd infra/cdk && npm run build`
+  - `cd infra/cdk && npm run synth`
+
+## 2026-04-02 ENGINEER
+
+- Addressed the two validator-blocking deploy-path gaps for `ITEM-0004`.
+- Replaced the broken `aws-events-targets` ingestion call in [tenant-stack.ts](/home/sundaram/code/multi-tenant-rag-demo/infra/cdk/lib/tenant-stack.ts) with an EventBridge Scheduler `Universal` target that invokes `bedrockagent:startIngestionJob` on a daily rate using explicit `bedrock:StartIngestionJob` IAM permissions.
+- Removed the hidden pre-pushed-image dependency from [ui-stack.ts](/home/sundaram/code/multi-tenant-rag-demo/infra/cdk/lib/ui-stack.ts) by building the Nuxt container directly from [apps/web/Dockerfile](/home/sundaram/code/multi-tenant-rag-demo/apps/web/Dockerfile) as a CDK container asset during deploy/synth instead of assuming `latest` already exists in ECR.
+- Simplified the environment config and app instantiation path accordingly in [tenants.ts](/home/sundaram/code/multi-tenant-rag-demo/infra/cdk/config/tenants.ts) and [app.ts](/home/sundaram/code/multi-tenant-rag-demo/infra/cdk/bin/app.ts); tenant stacks still instantiate from the in-repo config source.
+- Verification performed:
 
 [35m[3mexec[0m[0m
-[1m/bin/bash -lc "sed -n '1,240p' ai/decision-lock.yaml"[0m in /home/sundaram/code/multi-tenant-rag-demo
+[1m/bin/bash -lc "sed -n '1,220p' ai/decision-lock.yaml"[0m in /home/sundaram/code/multi-tenant-rag-demo
 [32m succeeded in 0ms:[0m
 confirmed_by_user: true
 blocked_on_user: false
@@ -499,6 +515,11 @@ approved_decisions:
   - "For ITEM-0004, SharedStack owns shared platform primitives only; tenant Bedrock resources, tenant docs buckets, tenant schema/bootstrap resources, and tenant ECS services belong in the per-tenant stacks"
   - "For ITEM-0004, UIStack may depend on SharedStack and its corresponding TenantStack outputs, but must preserve one ECS service per tenant using the same application image with deploy-time tenant identity"
   - "For ITEM-0004, acceptable PoC shims include custom resources for Aurora schema/bootstrap work and awkward Bedrock coverage, but `cdk deploy --all` still needs a coherent end-to-end resource graph"
+  - "For ITEM-0004, removing the hidden image-push prerequisite is more important than preserving a manual-tag flow: UIStack may build the shared Nuxt image from `apps/web` as a CDK container asset for PoC deployability, while SharedStack still provisions the explicit ECR repository for later promotion/CI wiring"
+  - "Current ITEM-0004 revise scope is narrow: keep the accepted SharedStack, TenantStack, and UIStack design intact and fix only the shared Aurora app-schema DDL mismatch with the existing Nuxt persistence contract"
+  - "For ITEM-0004, the shared `app` schema must align with `apps/web/server/utils/chat-store.ts`: sessions use primary key column `id`; messages use `id`, `tenant_id`, `session_id`, `user_id`, `role`, `content`, `citations`, `attached_files`, and `created_at`; session_files include both `storage_bucket` and `storage_key`"
+  - "For ITEM-0004, schema alignment should preserve tenant/user ownership fields and compatible foreign-key references so the current Nuxt persistence records could map onto Aurora without contract translation"
+  - "For ITEM-0004, do not use this revise pass to rename the app persistence contract, widen scope into app rewrites, replace the ordered-statement Aurora custom resource, or revisit the already-accepted scheduler/container-asset deploy-path decisions"
 
 [35m[3mexec[0m[0m
 [1m/bin/bash -lc "sed -n '1,220p' ai/user-questions.yaml"[0m in /home/sundaram/code/multi-tenant-rag-demo
@@ -533,7 +554,7 @@ questions:
     status: answered
 
 [35m[3mexec[0m[0m
-[1m/bin/bash -lc "sed -n '1,260p' ai/constitution.yaml"[0m in /home/sundaram/code/multi-tenant-rag-demo
+[1m/bin/bash -lc "sed -n '1,240p' ai/constitution.yaml"[0m in /home/sundaram/code/multi-tenant-rag-demo
 [32m succeeded in 0ms:[0m
 core_rules:
   - state lives in files, not chat memory
@@ -560,133 +581,57 @@ stop_rules:
 [32m succeeded in 0ms:[0m
 # Next Agent
 
-`ITEM-0004` has been implemented and should now go to `VALIDATOR`.
+`ITEM-0004` should go to `VALIDATOR`.
 
-Validation target:
-- Confirm `infra/cdk` now synthesizes a real shared-plus-per-tenant graph rather than placeholder outputs only.
-- Confirm the stack split still matches the locked boundaries:
-  - `SharedStack`: VPC, ECS cluster, ALB/listener, Aurora Serverless v2, shared attachments bucket, ECR repo, shared guardrail, shared log/SSM outputs, shared schema bootstrap.
-  - `TenantStack`: docs bucket, tenant vector-schema bootstrap, Bedrock KB, Bedrock data source, Bedrock agent plus alias, tenant runtime secret/logging, daily ingestion schedule shim.
-  - `UIStack`: one ECS/Fargate service per tenant, listener-rule routing, health checks, same shared image repo/tag, deploy-time tenant env vars, and secret-backed runtime config.
-- Confirm the in-repo tenant config source in `infra/cdk/config/tenants.ts` drives stack instantiation for at least two tenants (`tenant-a`, `tenant-b`) from `cdk/bin/app.ts`.
-
-Verification already run:
-- `cd apps/web && npm run build`
-- `cd infra/cdk && npm run build`
-- `cd infra/cdk && npm run synth`
-
-Known caveats for validation:
-- `cdk synth` still emits an `AwsApi` warning for the EventBridge ingestion schedule shim because the helper does not recognize `BedrockAgent` as an SDK service name. The stack synthesizes successfully; validate whether this PoC shim is acceptable under the locked “pragmatic shim” guidance.
-- ECS services point at the shared ECR repository with image tag `latest`; deployment assumes that image has been built and pushed before `cdk deploy --all`.
-- I left generated `infra/cdk/cdk.out` artifacts updated by the successful synth because that directory was already present in the repo.
+- Preserve the accepted infra design. This pass changed only the shared Aurora bootstrap DDL in [shared-stack.ts](/home/sundaram/code/multi-tenant-rag-demo/infra/cdk/lib/shared-stack.ts).
+- The shared `app` schema now matches [chat-store.ts](/home/sundaram/code/multi-tenant-rag-demo/apps/web/server/utils/chat-store.ts):
+  - `app.sessions.id` is the primary key.
+  - `app.messages` now uses `id`, references `sessions(id)`, includes `user_id`, and stores `attached_files` instead of `attachment_ids`.
+  - `app.session_files` now references `sessions(id)` and includes both `storage_bucket` and `storage_key`.
+- Verification already run successfully:
+  - `cd apps/web && npm run build`
+  - `cd infra/cdk && npm run synth`
+- Validator should confirm the DDL contract alignment stays narrow and that no accepted stack/resource decisions were reopened.
 
 [35m[3mexec[0m[0m
-[1m/bin/bash -lc 'git status --short'[0m in /home/sundaram/code/multi-tenant-rag-demo
+[1m/bin/bash -lc 'rg --files apps infra'[0m in /home/sundaram/code/multi-tenant-rag-demo
 [32m succeeded in 0ms:[0m
- M ai/active_agent.txt
- M ai/active_item.yaml
- M ai/backlog.yaml
- M ai/decision-lock.yaml
- M ai/iterations/ITER-0001.md
- M ai/logs/baton.log
- M ai/logs/step-001-SENIOR_JUDGMENTAL_ENGINEER.log
- M ai/logs/step-002-ENGINEER.log
- M ai/logs/step-003-VALIDATOR.log
- M ai/logs/step-004-ENGINEER.log
- M ai/logs/step-005-VALIDATOR.log
- M ai/logs/step-006-PLANNER.log
- M ai/next_agent.md
- M ai/next_agent.yaml
- M ai/review.md
- M ai/simplification.md
- M apps/web/app/app.vue
- M apps/web/nuxt.config.ts
- M apps/web/package.json
- M apps/web/server/api/health.get.ts
- M infra/cdk/bin/app.ts
- M infra/cdk/cdk.out/SharedStack-dev.assets.json
- M infra/cdk/cdk.out/SharedStack-dev.metadata.json
- M infra/cdk/cdk.out/SharedStack-dev.template.json
- M infra/cdk/cdk.out/TenantStack-tenant-a-dev.assets.json
- M infra/cdk/cdk.out/TenantStack-tenant-a-dev.metadata.json
- M infra/cdk/cdk.out/TenantStack-tenant-a-dev.template.json
- M infra/cdk/cdk.out/manifest.json
- M infra/cdk/cdk.out/tree.json
- M infra/cdk/lib/shared-stack.ts
- M infra/cdk/lib/tenant-stack.ts
-?? ai/logs/step-007-SENIOR_JUDGMENTAL_ENGINEER.log
-?? ai/logs/step-008-ENGINEER.log
-?? ai/logs/step-009-VALIDATOR.log
-?? ai/logs/step-010-PLANNER.log
-?? apps/web/.dockerignore
-?? apps/web/Dockerfile
-?? apps/web/app.vue
-?? apps/web/server/api/chat.post.ts
-?? apps/web/server/api/files.post.ts
-?? apps/web/server/api/sessions/
-?? apps/web/server/utils/
-?? infra/cdk/cdk.out/TenantStack-tenant-b-dev.assets.json
-?? infra/cdk/cdk.out/TenantStack-tenant-b-dev.metadata.json
-?? infra/cdk/cdk.out/TenantStack-tenant-b-dev.template.json
-?? infra/cdk/cdk.out/UIStack-tenant-a-dev.assets.json
-?? infra/cdk/cdk.out/UIStack-tenant-a-dev.metadata.json
-?? infra/cdk/cdk.out/UIStack-tenant-a-dev.template.json
-?? infra/cdk/cdk.out/UIStack-tenant-b-dev.assets.json
-?? infra/cdk/cdk.out/UIStack-tenant-b-dev.metadata.json
-?? infra/cdk/cdk.out/UIStack-tenant-b-dev.template.json
-?? infra/cdk/cdk.out/asset.2819175352ad1ce0dae768e83fc328fb70fb5f10b4a8ff0ccbcb791f02b0716d/
-?? infra/cdk/cdk.out/asset.56f7467bbde8a5efebcf57ae9e460027607099bab9f844669dcf5d800172ee5a/
-?? infra/cdk/cdk.out/asset.577047e96fffc143e84bdacb28b5c6088b6b31db59cdc409b8e8a7d1eb549038/
-?? infra/cdk/cdk.out/asset.faa95a81ae7d7373f3e1f242268f904eb748d8d0fdd306e8a6fe515a1905a7d6/
-?? infra/cdk/config/
-?? infra/cdk/lib/constructs/
-?? infra/cdk/lib/ui-stack.ts
+infra/cdk/cdk.json
+infra/cdk/lib/ui-stack.ts
+infra/cdk/lib/constructs/aurora-schema.ts
+infra/cdk/lib/shared-stack.ts
+infra/cdk/lib/tenant-stack.ts
+infra/cdk/config/tenants.ts
+infra/cdk/bin/app.ts
+infra/cdk/tsconfig.json
+infra/cdk/package.json
+infra/cdk/package-lock.json
+apps/web/server/utils/file-storage.ts
+apps/web/server/utils/chat-store.ts
+apps/web/server/utils/tenant.ts
+apps/web/server/utils/chat-assistant.ts
+apps/web/server/api/files.post.ts
+apps/web/server/api/health.get.ts
+apps/web/server/api/chat.post.ts
+apps/web/server/api/sessions/index.get.ts
+apps/web/app/app.vue
+apps/web/package.json
+apps/web/package-lock.json
+apps/web/nuxt.config.ts
+apps/web/app.vue
+apps/web/tsconfig.json
+apps/web/Dockerfile
+apps/web/server/api/sessions/index.post.ts
+apps/web/server/api/sessions/[id]/messages.get.ts
 
 [35m[3mcodex[0m[0m
-I have the item contract and the current delta. Next I’m reading the concrete CDK implementation and the app-local deployment files, then I’ll run the same build/synth path myself to distinguish actual defects from acceptable PoC shortcuts.
+I’ve got the contract files. Now I’m isolating the actual code changes and checking the current DDL, deploy path, and verification evidence rather than trusting the handoff notes.
 [35m[3mexec[0m[0m
-[1m/bin/bash -lc "sed -n '1,220p' infra/cdk/bin/app.ts"[0m in /home/sundaram/code/multi-tenant-rag-demo
+[1m/bin/bash -lc 'git diff --stat HEAD -- apps infra ai/review.md ai/decision-lock.yaml ai/user-questions.yaml ai/next_agent.md ai/iterations/ITER-0001.md'[0m in /home/sundaram/code/multi-tenant-rag-demo
 [32m succeeded in 0ms:[0m
-import { App } from "aws-cdk-lib"
-
-import { getEnvironmentConfig } from "../config/tenants.js"
-import { SharedStack } from "../lib/shared-stack.js"
-import { TenantStack } from "../lib/tenant-stack.js"
-import { UIStack } from "../lib/ui-stack.js"
-
-const app = new App()
-const environmentName = app.node.tryGetContext("environmentName") ?? "dev"
-const environmentConfig = getEnvironmentConfig(environmentName)
-
-const sharedStack = new SharedStack(app, `SharedStack-${environmentConfig.environmentName}`, {
-  description: "Shared platform baseline for the multi-tenant RAG demo",
-  environmentName: environmentConfig.environmentName,
-  databaseName: environmentConfig.databaseName,
-})
-
-for (const tenant of environmentConfig.tenants) {
-  const tenantStack = new TenantStack(
-    app,
-    `TenantStack-${tenant.tenantId}-${environmentConfig.environmentName}`,
-    {
-      description: `Tenant-isolated Bedrock and document resources for ${tenant.tenantId}`,
-      environmentName: environmentConfig.environmentName,
-      databaseName: environmentConfig.databaseName,
-      tenant,
-      shared: sharedStack,
-    },
-  )
-
-  new UIStack(app, `UIStack-${tenant.tenantId}-${environmentConfig.environmentName}`, {
-    description: `Tenant UI service for ${tenant.tenantId}`,
-    environmentName: environmentConfig.environmentName,
-    imageTag: environmentConfig.imageTag,
-    tenant,
-    shared: sharedStack,
-    tenantResources: tenantStack,
-  })
-}
-
+[35m[3mexec[0m[0m
+[1m/bin/bash -lc 'git diff HEAD -- infra/cdk/lib/shared-stack.ts infra/cdk/lib/tenant-stack.ts infra/cdk/lib/ui-stack.ts infra/cdk/bin/app.ts infra/cdk/config/tenants.ts apps/web/Dockerfile'[0m in /home/sundaram/code/multi-tenant-rag-demo
+[32m succeeded in 0ms:[0m
 [35m[3mexec[0m[0m
 [1m/bin/bash -lc "sed -n '1,260p' infra/cdk/lib/shared-stack.ts"[0m in /home/sundaram/code/multi-tenant-rag-demo
 [32m succeeded in 0ms:[0m
@@ -715,6 +660,51 @@ export interface SharedStackProps extends StackProps {
   readonly environmentName: string
   readonly databaseName: string
 }
+
+const sharedSchemaStatements = [
+  "CREATE SCHEMA IF NOT EXISTS app;",
+  "CREATE EXTENSION IF NOT EXISTS vector;",
+  `
+    CREATE TABLE IF NOT EXISTS app.sessions (
+      id uuid PRIMARY KEY,
+      tenant_id text NOT NULL,
+      user_id text NOT NULL,
+      title text NOT NULL DEFAULT 'New chat',
+      created_at timestamptz NOT NULL DEFAULT now(),
+      updated_at timestamptz NOT NULL DEFAULT now()
+    );
+  `,
+  `
+    CREATE TABLE IF NOT EXISTS app.messages (
+      id uuid PRIMARY KEY,
+      tenant_id text NOT NULL,
+      session_id uuid NOT NULL REFERENCES app.sessions(id) ON DELETE CASCADE,
+      user_id text NOT NULL,
+      role text NOT NULL,
+      content text NOT NULL,
+      citations jsonb NOT NULL DEFAULT '[]'::jsonb,
+      attached_files jsonb NOT NULL DEFAULT '[]'::jsonb,
+      created_at timestamptz NOT NULL DEFAULT now()
+    );
+  `,
+  `
+    CREATE TABLE IF NOT EXISTS app.session_files (
+      file_id uuid PRIMARY KEY,
+      tenant_id text NOT NULL,
+      session_id uuid NOT NULL REFERENCES app.sessions(id) ON DELETE CASCADE,
+      user_id text NOT NULL,
+      original_name text NOT NULL,
+      sanitized_name text NOT NULL,
+      content_type text NOT NULL,
+      size_bytes bigint NOT NULL,
+      storage_bucket text NOT NULL,
+      storage_key text NOT NULL,
+      status text NOT NULL,
+      created_at timestamptz NOT NULL DEFAULT now(),
+      updated_at timestamptz NOT NULL DEFAULT now()
+    );
+  `,
+].map((statement) => statement.trim())
 
 export class SharedStack extends Stack {
   public readonly albSecurityGroup: ec2.SecurityGroup
@@ -834,42 +824,7 @@ export class SharedStack extends Stack {
       secretArn: this.databaseSecret.secretArn,
       databaseName: props.databaseName,
       physicalResourceId: `shared-schema-${props.environmentName}`,
-      sql: [
-        "CREATE SCHEMA IF NOT EXISTS app;",
-        "CREATE EXTENSION IF NOT EXISTS vector;",
-        "CREATE TABLE IF NOT EXISTS app.sessions (",
-        "  session_id uuid PRIMARY KEY,",
-        "  tenant_id text NOT NULL,",
-        "  user_id text NOT NULL,",
-        "  title text NOT NULL DEFAULT 'New chat',",
-        "  created_at timestamptz NOT NULL DEFAULT now(),",
-        "  updated_at timestamptz NOT NULL DEFAULT now()",
-        ");",
-        "CREATE TABLE IF NOT EXISTS app.messages (",
-        "  message_id uuid PRIMARY KEY,",
-        "  tenant_id text NOT NULL,",
-        "  session_id uuid NOT NULL REFERENCES app.sessions(session_id) ON DELETE CASCADE,",
-        "  role text NOT NULL,",
-        "  content text NOT NULL,",
-        "  citations jsonb NOT NULL DEFAULT '[]'::jsonb,",
-        "  attachment_ids jsonb NOT NULL DEFAULT '[]'::jsonb,",
-        "  created_at timestamptz NOT NULL DEFAULT now()",
-        ");",
-        "CREATE TABLE IF NOT EXISTS app.session_files (",
-        "  file_id uuid PRIMARY KEY,",
-        "  tenant_id text NOT NULL,",
-        "  session_id uuid NOT NULL REFERENCES app.sessions(session_id) ON DELETE CASCADE,",
-        "  user_id text NOT NULL,",
-        "  original_name text NOT NULL,",
-        "  sanitized_name text NOT NULL,",
-        "  content_type text NOT NULL,",
-        "  size_bytes bigint NOT NULL,",
-        "  storage_key text NOT NULL,",
-        "  status text NOT NULL,",
-        "  created_at timestamptz NOT NULL DEFAULT now(),",
-        "  updated_at timestamptz NOT NULL DEFAULT now()",
-        ");",
-      ].join("\n"),
+      statements: sharedSchemaStatements,
     })
 
     this.repository = new ecr.Repository(this, "Repository", {
@@ -940,19 +895,437 @@ export class SharedStack extends Stack {
 
     new CfnOutput(this, "DatabaseClusterArn", {
       value: this.databaseCluster.clusterArn,
-    })
-
-    new CfnOutput(this, "DatabaseSecretArn", {
-      value: this.databaseSecret.secretArn,
-    })
-
-    new CfnOutput(this, "RepositoryUri", {
-      value: this.repository.repositoryUri,
-    })
-  }
 
 [35m[3mexec[0m[0m
-[1m/bin/bash -lc "sed -n '1,320p' infra/cdk/lib/tenant-stack.ts"[0m in /home/sundaram/code/multi-tenant-rag-demo
+[1m/bin/bash -lc "sed -n '1,260p' apps/web/server/utils/chat-store.ts"[0m in /home/sundaram/code/multi-tenant-rag-demo
+[32m succeeded in 0ms:[0m
+type ChatRole = "user" | "assistant"
+type SessionFileStatus = "ready"
+
+export interface ChatSessionRecord {
+  id: string
+  tenant_id: string
+  user_id: string
+  title: string
+  created_at: string
+  updated_at: string
+}
+
+export interface ChatCitationRecord {
+  id: string
+  label: string
+  uri: string
+}
+
+export interface ChatMessageRecord {
+  id: string
+  tenant_id: string
+  session_id: string
+  user_id: string
+  role: ChatRole
+  content: string
+  citations: ChatCitationRecord[]
+  attached_files: ChatSessionFileRecord[]
+  created_at: string
+}
+
+export interface ChatSessionFileRecord {
+  file_id: string
+  tenant_id: string
+  user_id: string
+  session_id: string
+  original_name: string
+  sanitized_name: string
+  content_type: string
+  size_bytes: number
+  storage_bucket: string
+  storage_key: string
+  status: SessionFileStatus
+  created_at: string
+  updated_at: string
+}
+
+interface SessionCreateInput {
+  tenantId: string
+  userId: string
+  title?: string
+}
+
+interface MessageAppendInput {
+  tenantId: string
+  sessionId: string
+  userId: string
+  role: ChatRole
+  content: string
+  citations?: ChatCitationRecord[]
+  attachedFiles?: ChatSessionFileRecord[]
+}
+
+interface SessionFilesCreateInput {
+  tenantId: string
+  sessionId: string
+  userId: string
+  files: Array<Omit<ChatSessionFileRecord, "tenant_id" | "session_id" | "user_id" | "created_at" | "updated_at">>
+}
+
+interface SessionFilesLookupInput extends SessionLookupInput {
+  fileIds?: string[]
+}
+
+interface SessionLookupInput {
+  tenantId: string
+  sessionId: string
+  userId: string
+}
+
+interface ChatPersistence {
+  createSession(input: SessionCreateInput): ChatSessionRecord
+  listSessions(tenantId: string, userId: string): ChatSessionRecord[]
+  getSession(input: SessionLookupInput): ChatSessionRecord | null
+  listMessages(input: SessionLookupInput): ChatMessageRecord[]
+  appendMessage(input: MessageAppendInput): ChatMessageRecord
+  createSessionFiles(input: SessionFilesCreateInput): ChatSessionFileRecord[]
+  listSessionFiles(input: SessionLookupInput): ChatSessionFileRecord[]
+  getSessionFiles(input: SessionFilesLookupInput): ChatSessionFileRecord[]
+}
+
+class InMemoryChatPersistence implements ChatPersistence {
+  private sessions = new Map<string, ChatSessionRecord>()
+  private sessionOrder = new Map<string, string[]>()
+  private messages = new Map<string, ChatMessageRecord[]>()
+  private sessionFiles = new Map<string, ChatSessionFileRecord[]>()
+
+  createSession(input: SessionCreateInput) {
+    const now = new Date().toISOString()
+    const session: ChatSessionRecord = {
+      id: crypto.randomUUID(),
+      tenant_id: input.tenantId,
+      user_id: input.userId,
+      title: input.title?.trim() || "New chat",
+      created_at: now,
+      updated_at: now,
+    }
+
+    this.sessions.set(session.id, session)
+    this.messages.set(session.id, [])
+    this.sessionFiles.set(session.id, [])
+
+    const scopeKey = this.scopeKey(input.tenantId, input.userId)
+    const scopedSessions = this.sessionOrder.get(scopeKey) ?? []
+    this.sessionOrder.set(scopeKey, [session.id, ...scopedSessions])
+
+    return session
+  }
+
+  listSessions(tenantId: string, userId: string) {
+    const scopeKey = this.scopeKey(tenantId, userId)
+    const sessionIds = this.sessionOrder.get(scopeKey) ?? []
+
+    return sessionIds
+      .map(sessionId => this.sessions.get(sessionId))
+      .filter((session): session is ChatSessionRecord => Boolean(session))
+  }
+
+  getSession(input: SessionLookupInput) {
+    const session = this.sessions.get(input.sessionId)
+
+    if (!session) {
+      return null
+    }
+
+    if (session.tenant_id !== input.tenantId || session.user_id !== input.userId) {
+      return null
+    }
+
+    return session
+  }
+
+  listMessages(input: SessionLookupInput) {
+    if (!this.getSession(input)) {
+      return []
+    }
+
+    return [...(this.messages.get(input.sessionId) ?? [])]
+  }
+
+  appendMessage(input: MessageAppendInput) {
+    const session = this.getSession({
+      tenantId: input.tenantId,
+      sessionId: input.sessionId,
+      userId: input.userId,
+    })
+
+    if (!session) {
+      throw createError({
+        statusCode: 404,
+        statusMessage: "Session not found for tenant and user scope",
+      })
+    }
+
+    const now = new Date().toISOString()
+    const message: ChatMessageRecord = {
+      id: crypto.randomUUID(),
+      tenant_id: input.tenantId,
+      session_id: input.sessionId,
+      user_id: input.userId,
+      role: input.role,
+      content: input.content,
+      citations: input.citations ?? [],
+      attached_files: input.attachedFiles ?? [],
+      created_at: now,
+    }
+
+    const messages = this.messages.get(input.sessionId) ?? []
+    this.messages.set(input.sessionId, [...messages, message])
+
+    const updatedSession = {
+      ...session,
+      title: this.deriveTitle(session.title, input.role, input.content),
+      updated_at: now,
+    }
+
+    this.sessions.set(input.sessionId, updatedSession)
+    this.bumpSessionOrder(updatedSession)
+
+    return message
+  }
+
+  createSessionFiles(input: SessionFilesCreateInput) {
+    const session = this.getSession(input)
+
+    if (!session) {
+      throw createError({
+        statusCode: 404,
+        statusMessage: "Session not found for tenant and user scope",
+      })
+    }
+
+    const now = new Date().toISOString()
+    const existingFiles = this.sessionFiles.get(input.sessionId) ?? []
+    const createdFiles = input.files.map(file => {
+      const record: ChatSessionFileRecord = {
+        ...file,
+        tenant_id: input.tenantId,
+        session_id: input.sessionId,
+        user_id: input.userId,
+        created_at: now,
+        updated_at: now,
+      }
+
+      return record
+    })
+
+    this.sessionFiles.set(input.sessionId, [...existingFiles, ...createdFiles])
+
+    const updatedSession = {
+      ...session,
+      updated_at: now,
+    }
+
+    this.sessions.set(input.sessionId, updatedSession)
+    this.bumpSessionOrder(updatedSession)
+
+    return createdFiles
+  }
+
+  listSessionFiles(input: SessionLookupInput) {
+    if (!this.getSession(input)) {
+      return []
+    }
+
+    return [...(this.sessionFiles.get(input.sessionId) ?? [])]
+  }
+
+  getSessionFiles(input: SessionFilesLookupInput) {
+    const scopedFiles = this.listSessionFiles(input)
+
+    if (!input.fileIds?.length) {
+      return scopedFiles
+    }
+
+    const fileIds = new Set(input.fileIds)
+    return scopedFiles.filter(file => fileIds.has(file.file_id))
+  }
+
+  private deriveTitle(currentTitle: string, role: ChatRole, content: string) {
+    if (currentTitle !== "New chat" || role !== "user") {
+      return currentTitle
+    }
+
+    const trimmed = content.trim()
+
+    if (!trimmed) {
+      return currentTitle
+    }
+
+    return trimmed.slice(0, 60)
+
+[35m[3mexec[0m[0m
+[1m/bin/bash -lc "sed -n '1,260p' infra/cdk/lib/ui-stack.ts"[0m in /home/sundaram/code/multi-tenant-rag-demo
+[32m succeeded in 0ms:[0m
+import {
+  CfnOutput,
+  Duration,
+  Stack,
+  type StackProps,
+} from "aws-cdk-lib"
+import * as ec2 from "aws-cdk-lib/aws-ec2"
+import * as ecs from "aws-cdk-lib/aws-ecs"
+import * as iam from "aws-cdk-lib/aws-iam"
+import * as logs from "aws-cdk-lib/aws-logs"
+import * as elbv2 from "aws-cdk-lib/aws-elasticloadbalancingv2"
+import { Construct } from "constructs"
+import { fileURLToPath } from "node:url"
+
+import type { TenantDefinition } from "../config/tenants.js"
+import type { SharedStack } from "./shared-stack.js"
+import type { TenantStack } from "./tenant-stack.js"
+
+export interface UIStackProps extends StackProps {
+  readonly environmentName: string
+  readonly tenant: TenantDefinition
+  readonly shared: SharedStack
+  readonly tenantResources: TenantStack
+}
+
+const webAppDirectory = fileURLToPath(new URL("../../../../apps/web", import.meta.url))
+
+export class UIStack extends Stack {
+  constructor(scope: Construct, id: string, props: UIStackProps) {
+    super(scope, id, props)
+
+    const serviceSecurityGroup = new ec2.SecurityGroup(this, "ServiceSecurityGroup", {
+      vpc: props.shared.vpc,
+      description: `Application security group for ${props.tenant.tenantId}`,
+      allowAllOutbound: true,
+    })
+
+    serviceSecurityGroup.addIngressRule(
+      props.shared.albSecurityGroup,
+      ec2.Port.tcp(3000),
+      `Allow ALB traffic for ${props.tenant.tenantId}`,
+    )
+
+    const logGroup = new logs.LogGroup(this, "UiLogGroup", {
+      logGroupName: `/platform/chat-ui/${props.environmentName}/${props.tenant.tenantId}`,
+      retention: logs.RetentionDays.ONE_WEEK,
+    })
+
+    const taskRole = new iam.Role(this, "TaskRole", {
+      assumedBy: new iam.ServicePrincipal("ecs-tasks.amazonaws.com"),
+      description: `Application task role for ${props.tenant.tenantId}`,
+    })
+
+    const executionRole = new iam.Role(this, "ExecutionRole", {
+      assumedBy: new iam.ServicePrincipal("ecs-tasks.amazonaws.com"),
+      description: `Execution role for ${props.tenant.tenantId}`,
+      managedPolicies: [
+        iam.ManagedPolicy.fromAwsManagedPolicyName("service-role/AmazonECSTaskExecutionRolePolicy"),
+      ],
+    })
+
+    const taskDefinition = new ecs.FargateTaskDefinition(this, "TaskDefinition", {
+      cpu: 512,
+      memoryLimitMiB: 1024,
+      taskRole,
+      executionRole,
+      runtimePlatform: {
+        operatingSystemFamily: ecs.OperatingSystemFamily.LINUX,
+        cpuArchitecture: ecs.CpuArchitecture.X86_64,
+      },
+    })
+
+    props.shared.repository.grantPull(executionRole)
+    props.shared.databaseSecret.grantRead(executionRole)
+    props.tenantResources.runtimeSecret.grantRead(executionRole)
+
+    props.shared.databaseSecret.grantRead(taskRole)
+    props.tenantResources.runtimeSecret.grantRead(taskRole)
+
+    taskDefinition.addContainer("Web", {
+      image: ecs.ContainerImage.fromAsset(webAppDirectory),
+      containerName: "web",
+      logging: ecs.LogDrivers.awsLogs({
+        streamPrefix: props.tenant.tenantId,
+        logGroup,
+      }),
+      portMappings: [
+        {
+          containerPort: 3000,
+          protocol: ecs.Protocol.TCP,
+        },
+      ],
+      environment: {
+        AWS_REGION: this.region,
+        HOST: "0.0.0.0",
+        NODE_ENV: "production",
+        NUXT_PUBLIC_TENANT_ID: props.tenant.tenantId,
+        NUXT_PUBLIC_TENANT_NAME: props.tenant.displayName,
+        NUXT_TENANT_ID: props.tenant.tenantId,
+        PORT: "3000",
+        TENANT_ID: props.tenant.tenantId,
+      },
+      secrets: {
+        BEDROCK_AGENT_ALIAS_ID: ecs.Secret.fromSecretsManager(props.tenantResources.runtimeSecret, "agentAliasId"),
+        BEDROCK_AGENT_ID: ecs.Secret.fromSecretsManager(props.tenantResources.runtimeSecret, "agentId"),
+        BEDROCK_GUARDRAIL_ID: ecs.Secret.fromSecretsManager(props.tenantResources.runtimeSecret, "guardrailId"),
+        BEDROCK_GUARDRAIL_VERSION: ecs.Secret.fromSecretsManager(props.tenantResources.runtimeSecret, "guardrailVersion"),
+        BEDROCK_KNOWLEDGE_BASE_ID: ecs.Secret.fromSecretsManager(props.tenantResources.runtimeSecret, "knowledgeBaseId"),
+        DATABASE_HOST: ecs.Secret.fromSecretsManager(props.shared.databaseSecret, "host"),
+        DATABASE_NAME: ecs.Secret.fromSecretsManager(props.shared.databaseSecret, "dbname"),
+        DATABASE_PASSWORD: ecs.Secret.fromSecretsManager(props.shared.databaseSecret, "password"),
+        DATABASE_PORT: ecs.Secret.fromSecretsManager(props.shared.databaseSecret, "port"),
+        DATABASE_USER: ecs.Secret.fromSecretsManager(props.shared.databaseSecret, "username"),
+        DOCS_BUCKET_NAME: ecs.Secret.fromSecretsManager(props.tenantResources.runtimeSecret, "docsBucketName"),
+      },
+    })
+
+    const service = new ecs.FargateService(this, "Service", {
+      cluster: props.shared.cluster,
+      taskDefinition,
+      desiredCount: 1,
+      minHealthyPercent: 100,
+      maxHealthyPercent: 200,
+      assignPublicIp: false,
+      vpcSubnets: {
+        subnetType: ec2.SubnetType.PRIVATE_WITH_EGRESS,
+      },
+      securityGroups: [serviceSecurityGroup],
+      circuitBreaker: {
+        rollback: true,
+      },
+    })
+
+    props.shared.httpListener.addTargets(`TenantTraffic${props.tenant.tenantId}`, {
+      priority: props.tenant.listenerPriority,
+      conditions: [elbv2.ListenerCondition.hostHeaders(props.tenant.hostnames)],
+      port: 3000,
+      protocol: elbv2.ApplicationProtocol.HTTP,
+      targets: [service],
+      healthCheck: {
+        enabled: true,
+        path: "/api/health",
+        healthyHttpCodes: "200",
+        interval: Duration.seconds(30),
+      },
+    })
+
+    new CfnOutput(this, "TenantId", {
+      value: props.tenant.tenantId,
+    })
+
+    new CfnOutput(this, "ServiceName", {
+      value: service.serviceName,
+    })
+
+    new CfnOutput(this, "Hostnames", {
+      value: props.tenant.hostnames.join(","),
+    })
+  }
+}
+
+[35m[3mexec[0m[0m
+[1m/bin/bash -lc "sed -n '1,260p' infra/cdk/lib/tenant-stack.ts"[0m in /home/sundaram/code/multi-tenant-rag-demo
 [32m succeeded in 0ms:[0m
 import {
   CfnOutput,
@@ -963,10 +1336,10 @@ import {
   type StackProps,
 } from "aws-cdk-lib"
 import * as bedrock from "aws-cdk-lib/aws-bedrock"
-import * as events from "aws-cdk-lib/aws-events"
-import * as targets from "aws-cdk-lib/aws-events-targets"
 import * as iam from "aws-cdk-lib/aws-iam"
 import * as logs from "aws-cdk-lib/aws-logs"
+import * as scheduler from "aws-cdk-lib/aws-scheduler"
+import * as schedulerTargets from "aws-cdk-lib/aws-scheduler-targets"
 import * as s3 from "aws-cdk-lib/aws-s3"
 import * as secretsmanager from "aws-cdk-lib/aws-secretsmanager"
 import { Construct } from "constructs"
@@ -983,6 +1356,30 @@ export interface TenantStackProps extends StackProps {
 }
 
 const kbTableNameForTenant = (tenantId: string): string => `vectors_${tenantId.replace(/-/g, "_")}.bedrock_kb`
+
+const tenantSchemaStatements = (tenantId: string): string[] => {
+  const schemaName = `vectors_${tenantId.replace(/-/g, "_")}`
+  const tableName = kbTableNameForTenant(tenantId)
+  const indexName = `${tenantId.replace(/-/g, "_")}_bedrock_kb_embedding_idx`
+
+  return [
+    `CREATE SCHEMA IF NOT EXISTS ${schemaName};`,
+    "CREATE EXTENSION IF NOT EXISTS vector;",
+    `
+      CREATE TABLE IF NOT EXISTS ${tableName} (
+        id uuid PRIMARY KEY,
+        embedding vector(1024),
+        chunks text NOT NULL,
+        metadata jsonb NOT NULL DEFAULT '{}'::jsonb,
+        custom_metadata jsonb NOT NULL DEFAULT '{}'::jsonb
+      );
+    `,
+    `
+      CREATE INDEX IF NOT EXISTS ${indexName}
+      ON ${tableName} USING hnsw (embedding vector_cosine_ops);
+    `,
+  ].map((statement) => statement.trim())
+}
 
 export class TenantStack extends Stack {
   public readonly agent: bedrock.CfnAgent
@@ -1016,19 +1413,7 @@ export class TenantStack extends Stack {
       secretArn: props.shared.databaseSecret.secretArn,
       databaseName: props.databaseName,
       physicalResourceId: `tenant-schema-${props.tenant.tenantId}-${props.environmentName}`,
-      sql: [
-        `CREATE SCHEMA IF NOT EXISTS vectors_${props.tenant.tenantId.replace(/-/g, "_")};`,
-        "CREATE EXTENSION IF NOT EXISTS vector;",
-        `CREATE TABLE IF NOT EXISTS ${tableName} (`,
-        "  id uuid PRIMARY KEY,",
-        "  embedding vector(1024),",
-        "  chunks text NOT NULL,",
-        "  metadata jsonb NOT NULL DEFAULT '{}'::jsonb,",
-        "  custom_metadata jsonb NOT NULL DEFAULT '{}'::jsonb",
-        ");",
-        `CREATE INDEX IF NOT EXISTS ${props.tenant.tenantId.replace(/-/g, "_")}_bedrock_kb_embedding_idx`,
-        `ON ${tableName} USING hnsw (embedding vector_cosine_ops);`,
-      ].join("\n"),
+      statements: tenantSchemaStatements(props.tenant.tenantId),
     })
 
     const knowledgeBaseRole = new iam.Role(this, "KnowledgeBaseRole", {
@@ -1155,26 +1540,26 @@ export class TenantStack extends Stack {
       },
     })
 
-    const ingestionRule = new events.Rule(this, "IngestionSchedule", {
+    new scheduler.Schedule(this, "IngestionSchedule", {
       description: `Daily KB sync for ${props.tenant.tenantId}`,
       enabled: true,
-      schedule: events.Schedule.rate(Duration.days(1)),
-    })
-
-    ingestionRule.addTarget(
-      new targets.AwsApi({
-        service: "BedrockAgent",
+      schedule: scheduler.ScheduleExpression.rate(Duration.days(1)),
+      timeWindow: scheduler.TimeWindow.off(),
+      target: new schedulerTargets.Universal({
+        service: "bedrockagent",
         action: "startIngestionJob",
-        parameters: {
+        input: scheduler.ScheduleTargetInput.fromObject({
           knowledgeBaseId: this.knowledgeBase.attrKnowledgeBaseId,
           dataSourceId: this.dataSource.attrDataSourceId,
-        },
-        policyStatement: new iam.PolicyStatement({
-          actions: ["bedrock:StartIngestionJob"],
-          resources: ["*"],
         }),
+        policyStatements: [
+          new iam.PolicyStatement({
+            actions: ["bedrock:StartIngestionJob"],
+            resources: ["*"],
+          }),
+        ],
       }),
-    )
+    })
 
     this.runtimeSecret = new secretsmanager.Secret(this, "RuntimeSecret", {
       secretName: `multi-tenant-rag-demo/${props.environmentName}/${props.tenant.tenantId}/runtime`,
@@ -1202,186 +1587,53 @@ export class TenantStack extends Stack {
 
     new CfnOutput(this, "AgentId", {
       value: this.agent.attrAgentId,
-    })
 
-    new CfnOutput(this, "AgentAliasId", {
-      value: this.agentAlias.attrAgentAliasId,
-    })
-
-    new CfnOutput(this, "DocsBucketName", {
-      value: this.docsBucket.bucketName,
-    })
-
-    new CfnOutput(this, "TenantLogGroupName", {
-      value: tenantLogGroup.logGroupName,
-    })
-  }
-}
-
+[35m[3mcodex[0m[0m
+The code matches the latest handoff so far. I’m running the claimed verification commands myself and checking the stack wiring around tenant instantiation and deploy path while those complete.
 [35m[3mexec[0m[0m
-[1m/bin/bash -lc "sed -n '1,280p' infra/cdk/lib/ui-stack.ts"[0m in /home/sundaram/code/multi-tenant-rag-demo
+[1m/bin/bash -lc "sed -n '1,220p' infra/cdk/bin/app.ts"[0m in /home/sundaram/code/multi-tenant-rag-demo
 [32m succeeded in 0ms:[0m
-import {
-  CfnOutput,
-  Duration,
-  Stack,
-  type StackProps,
-} from "aws-cdk-lib"
-import * as ec2 from "aws-cdk-lib/aws-ec2"
-import * as ecs from "aws-cdk-lib/aws-ecs"
-import * as iam from "aws-cdk-lib/aws-iam"
-import * as logs from "aws-cdk-lib/aws-logs"
-import * as elbv2 from "aws-cdk-lib/aws-elasticloadbalancingv2"
-import { Construct } from "constructs"
+import { App } from "aws-cdk-lib"
 
-import type { TenantDefinition } from "../config/tenants.js"
-import type { SharedStack } from "./shared-stack.js"
-import type { TenantStack } from "./tenant-stack.js"
+import { getEnvironmentConfig } from "../config/tenants.js"
+import { SharedStack } from "../lib/shared-stack.js"
+import { TenantStack } from "../lib/tenant-stack.js"
+import { UIStack } from "../lib/ui-stack.js"
 
-export interface UIStackProps extends StackProps {
-  readonly environmentName: string
-  readonly imageTag: string
-  readonly tenant: TenantDefinition
-  readonly shared: SharedStack
-  readonly tenantResources: TenantStack
-}
+const app = new App()
+const environmentName = app.node.tryGetContext("environmentName") ?? "dev"
+const environmentConfig = getEnvironmentConfig(environmentName)
 
-export class UIStack extends Stack {
-  constructor(scope: Construct, id: string, props: UIStackProps) {
-    super(scope, id, props)
+const sharedStack = new SharedStack(app, `SharedStack-${environmentConfig.environmentName}`, {
+  description: "Shared platform baseline for the multi-tenant RAG demo",
+  environmentName: environmentConfig.environmentName,
+  databaseName: environmentConfig.databaseName,
+})
 
-    const serviceSecurityGroup = new ec2.SecurityGroup(this, "ServiceSecurityGroup", {
-      vpc: props.shared.vpc,
-      description: `Application security group for ${props.tenant.tenantId}`,
-      allowAllOutbound: true,
-    })
+for (const tenant of environmentConfig.tenants) {
+  const tenantStack = new TenantStack(
+    app,
+    `TenantStack-${tenant.tenantId}-${environmentConfig.environmentName}`,
+    {
+      description: `Tenant-isolated Bedrock and document resources for ${tenant.tenantId}`,
+      environmentName: environmentConfig.environmentName,
+      databaseName: environmentConfig.databaseName,
+      tenant,
+      shared: sharedStack,
+    },
+  )
 
-    serviceSecurityGroup.addIngressRule(
-      props.shared.albSecurityGroup,
-      ec2.Port.tcp(3000),
-      `Allow ALB traffic for ${props.tenant.tenantId}`,
-    )
-
-    const logGroup = new logs.LogGroup(this, "UiLogGroup", {
-      logGroupName: `/platform/chat-ui/${props.environmentName}/${props.tenant.tenantId}`,
-      retention: logs.RetentionDays.ONE_WEEK,
-    })
-
-    const taskRole = new iam.Role(this, "TaskRole", {
-      assumedBy: new iam.ServicePrincipal("ecs-tasks.amazonaws.com"),
-      description: `Application task role for ${props.tenant.tenantId}`,
-    })
-
-    const executionRole = new iam.Role(this, "ExecutionRole", {
-      assumedBy: new iam.ServicePrincipal("ecs-tasks.amazonaws.com"),
-      description: `Execution role for ${props.tenant.tenantId}`,
-      managedPolicies: [
-        iam.ManagedPolicy.fromAwsManagedPolicyName("service-role/AmazonECSTaskExecutionRolePolicy"),
-      ],
-    })
-
-    const taskDefinition = new ecs.FargateTaskDefinition(this, "TaskDefinition", {
-      cpu: 512,
-      memoryLimitMiB: 1024,
-      taskRole,
-      executionRole,
-      runtimePlatform: {
-        operatingSystemFamily: ecs.OperatingSystemFamily.LINUX,
-        cpuArchitecture: ecs.CpuArchitecture.X86_64,
-      },
-    })
-
-    props.shared.repository.grantPull(executionRole)
-    props.shared.databaseSecret.grantRead(executionRole)
-    props.tenantResources.runtimeSecret.grantRead(executionRole)
-
-    props.shared.databaseSecret.grantRead(taskRole)
-    props.tenantResources.runtimeSecret.grantRead(taskRole)
-
-    taskDefinition.addContainer("Web", {
-      image: new ecs.EcrImage(props.shared.repository, props.imageTag),
-      containerName: "web",
-      logging: ecs.LogDrivers.awsLogs({
-        streamPrefix: props.tenant.tenantId,
-        logGroup,
-      }),
-      portMappings: [
-        {
-          containerPort: 3000,
-          protocol: ecs.Protocol.TCP,
-        },
-      ],
-      environment: {
-        AWS_REGION: this.region,
-        HOST: "0.0.0.0",
-        NODE_ENV: "production",
-        NUXT_PUBLIC_TENANT_ID: props.tenant.tenantId,
-        NUXT_PUBLIC_TENANT_NAME: props.tenant.displayName,
-        NUXT_TENANT_ID: props.tenant.tenantId,
-        PORT: "3000",
-        TENANT_ID: props.tenant.tenantId,
-      },
-      secrets: {
-        BEDROCK_AGENT_ALIAS_ID: ecs.Secret.fromSecretsManager(props.tenantResources.runtimeSecret, "agentAliasId"),
-        BEDROCK_AGENT_ID: ecs.Secret.fromSecretsManager(props.tenantResources.runtimeSecret, "agentId"),
-        BEDROCK_GUARDRAIL_ID: ecs.Secret.fromSecretsManager(props.tenantResources.runtimeSecret, "guardrailId"),
-        BEDROCK_GUARDRAIL_VERSION: ecs.Secret.fromSecretsManager(props.tenantResources.runtimeSecret, "guardrailVersion"),
-        BEDROCK_KNOWLEDGE_BASE_ID: ecs.Secret.fromSecretsManager(props.tenantResources.runtimeSecret, "knowledgeBaseId"),
-        DATABASE_HOST: ecs.Secret.fromSecretsManager(props.shared.databaseSecret, "host"),
-        DATABASE_NAME: ecs.Secret.fromSecretsManager(props.shared.databaseSecret, "dbname"),
-        DATABASE_PASSWORD: ecs.Secret.fromSecretsManager(props.shared.databaseSecret, "password"),
-        DATABASE_PORT: ecs.Secret.fromSecretsManager(props.shared.databaseSecret, "port"),
-        DATABASE_USER: ecs.Secret.fromSecretsManager(props.shared.databaseSecret, "username"),
-        DOCS_BUCKET_NAME: ecs.Secret.fromSecretsManager(props.tenantResources.runtimeSecret, "docsBucketName"),
-      },
-    })
-
-    const service = new ecs.FargateService(this, "Service", {
-      cluster: props.shared.cluster,
-      taskDefinition,
-      desiredCount: 1,
-      minHealthyPercent: 100,
-      maxHealthyPercent: 200,
-      assignPublicIp: false,
-      vpcSubnets: {
-        subnetType: ec2.SubnetType.PRIVATE_WITH_EGRESS,
-      },
-      securityGroups: [serviceSecurityGroup],
-      circuitBreaker: {
-        rollback: true,
-      },
-    })
-
-    props.shared.httpListener.addTargets(`TenantTraffic${props.tenant.tenantId}`, {
-      priority: props.tenant.listenerPriority,
-      conditions: [elbv2.ListenerCondition.hostHeaders(props.tenant.hostnames)],
-      port: 3000,
-      protocol: elbv2.ApplicationProtocol.HTTP,
-      targets: [service],
-      healthCheck: {
-        enabled: true,
-        path: "/api/health",
-        healthyHttpCodes: "200",
-        interval: Duration.seconds(30),
-      },
-    })
-
-    new CfnOutput(this, "TenantId", {
-      value: props.tenant.tenantId,
-    })
-
-    new CfnOutput(this, "ServiceName", {
-      value: service.serviceName,
-    })
-
-    new CfnOutput(this, "Hostnames", {
-      value: props.tenant.hostnames.join(","),
-    })
-  }
+  new UIStack(app, `UIStack-${tenant.tenantId}-${environmentConfig.environmentName}`, {
+    description: `Tenant UI service for ${tenant.tenantId}`,
+    environmentName: environmentConfig.environmentName,
+    tenant,
+    shared: sharedStack,
+    tenantResources: tenantStack,
+  })
 }
 
 [35m[3mexec[0m[0m
-[1m/bin/bash -lc "sed -n '1,240p' infra/cdk/config/tenants.ts"[0m in /home/sundaram/code/multi-tenant-rag-demo
+[1m/bin/bash -lc "sed -n '1,220p' infra/cdk/config/tenants.ts"[0m in /home/sundaram/code/multi-tenant-rag-demo
 [32m succeeded in 0ms:[0m
 export interface TenantDefinition {
   readonly tenantId: string
@@ -1393,7 +1645,6 @@ export interface TenantDefinition {
 export interface EnvironmentConfig {
   readonly environmentName: string
   readonly baseDomain: string
-  readonly imageTag: string
   readonly databaseName: string
   readonly tenants: TenantDefinition[]
 }
@@ -1422,27 +1673,8 @@ export const getEnvironmentConfig = (environmentName: string): EnvironmentConfig
   return {
     environmentName: normalizedEnvironment,
     baseDomain,
-    imageTag: "latest",
     databaseName: "ragplatform",
     tenants: createTenants(baseDomain),
-  }
-}
-
-[35m[3mexec[0m[0m
-[1m/bin/bash -lc "sed -n '1,220p' apps/web/package.json"[0m in /home/sundaram/code/multi-tenant-rag-demo
-[32m succeeded in 0ms:[0m
-{
-  "name": "@multi-tenant-rag-demo/web",
-  "private": true,
-  "type": "module",
-  "scripts": {
-    "dev": "nuxt dev",
-    "build": "nuxt build",
-    "preview": "nuxt preview",
-    "start": "node .output/server/index.mjs"
-  },
-  "dependencies": {
-    "nuxt": "^4.0.0"
   }
 }
 
@@ -1470,24 +1702,104 @@ EXPOSE 3000
 CMD ["node", ".output/server/index.mjs"]
 
 [35m[3mexec[0m[0m
-[1m/bin/bash -lc "sed -n '1,220p' apps/web/.dockerignore"[0m in /home/sundaram/code/multi-tenant-rag-demo
+[1m/bin/bash -lc "sed -n '1,260p' infra/cdk/lib/constructs/aurora-schema.ts"[0m in /home/sundaram/code/multi-tenant-rag-demo
 [32m succeeded in 0ms:[0m
-.git
-.nuxt
-.output
-node_modules
-npm-debug.log
+import { Construct } from "constructs"
+import * as cdk from "aws-cdk-lib"
+import * as iam from "aws-cdk-lib/aws-iam"
+import * as lambda from "aws-cdk-lib/aws-lambda"
+import * as cr from "aws-cdk-lib/custom-resources"
 
-[35m[3mcodex[0m[0m
-I’ve read the main stack split. I’m running the actual package build and CDK synth path now, because the accept/revise call here depends on whether the checked-in deployment contract behaves as advertised rather than just looking plausible in source.
+export interface AuroraSchemaProps {
+  readonly clusterArn: string
+  readonly secretArn: string
+  readonly databaseName: string
+  readonly statements: string[]
+  readonly physicalResourceId: string
+}
+
+export class AuroraSchema extends Construct {
+  constructor(scope: Construct, id: string, props: AuroraSchemaProps) {
+    super(scope, id)
+
+    const handler = new lambda.Function(this, "Handler", {
+      runtime: lambda.Runtime.NODEJS_20_X,
+      handler: "index.handler",
+      timeout: cdk.Duration.minutes(2),
+      code: lambda.Code.fromInline(`
+const { RDSDataClient, ExecuteStatementCommand } = require("@aws-sdk/client-rds-data");
+
+const client = new RDSDataClient({});
+
+exports.handler = async (event) => {
+  const physicalResourceId =
+    event.ResourceProperties.physicalResourceId ||
+    event.PhysicalResourceId ||
+    event.LogicalResourceId;
+
+  if (event.RequestType === "Delete") {
+    return { PhysicalResourceId: physicalResourceId };
+  }
+
+  const statements = Array.isArray(event.ResourceProperties.statements)
+    ? event.ResourceProperties.statements
+    : [];
+
+  for (const statement of statements) {
+    const sql = typeof statement === "string" ? statement.trim() : "";
+
+    if (!sql) {
+      continue;
+    }
+
+    await client.send(new ExecuteStatementCommand({
+      resourceArn: event.ResourceProperties.clusterArn,
+      secretArn: event.ResourceProperties.secretArn,
+      database: event.ResourceProperties.databaseName,
+      sql,
+    }));
+  }
+
+  return { PhysicalResourceId: physicalResourceId };
+};
+      `),
+    })
+
+    handler.addToRolePolicy(
+      new iam.PolicyStatement({
+        actions: ["rds-data:ExecuteStatement"],
+        resources: [props.clusterArn],
+      }),
+    )
+    handler.addToRolePolicy(
+      new iam.PolicyStatement({
+        actions: ["secretsmanager:GetSecretValue"],
+        resources: [props.secretArn],
+      }),
+    )
+
+    const provider = new cr.Provider(this, "Provider", {
+      onEventHandler: handler,
+    })
+
+    new cdk.CustomResource(this, "Resource", {
+      serviceToken: provider.serviceToken,
+      properties: {
+        clusterArn: props.clusterArn,
+        secretArn: props.secretArn,
+        databaseName: props.databaseName,
+        statements: props.statements,
+        physicalResourceId: props.physicalResourceId,
+      },
+    })
+  }
+}
+
 [35m[3mexec[0m[0m
 [1m/bin/bash -lc 'npm run build'[0m in /home/sundaram/code/multi-tenant-rag-demo/apps/web
 [35m[3mexec[0m[0m
-[1m/bin/bash -lc 'npm run build'[0m in /home/sundaram/code/multi-tenant-rag-demo/infra/cdk
-[35m[3mexec[0m[0m
 [1m/bin/bash -lc 'npm run synth'[0m in /home/sundaram/code/multi-tenant-rag-demo/infra/cdk
-[32m succeeded in 1314ms:[0m
-[32m succeeded in 2534ms:[0m
+[32m succeeded in 2423ms:[0m
 ┌  Building Nuxt for production...
 │
 ●  Nuxt 4.4.2 (with Nitro 2.13.2, Vite 7.3.1 and Vue 3.5.31)
@@ -1510,15 +1822,15 @@ I’ve read the main stack split. I’m running the actual package build and CDK
 ℹ node_modules/.cache/nuxt/.nuxt/dist/client/_nuxt/4ZzoKaW5.js               3.48 kB │ gzip:  1.56 kB
 ℹ node_modules/.cache/nuxt/.nuxt/dist/client/_nuxt/Coj61gYI.js               9.54 kB │ gzip:  3.86 kB
 ℹ node_modules/.cache/nuxt/.nuxt/dist/client/_nuxt/DPGoB10T.js             150.19 kB │ gzip: 57.27 kB
-ℹ ✓ built in 756ms
-✔ Client built in 763ms
+ℹ ✓ built in 690ms
+✔ Client built in 696ms
 ℹ Building server...
 ℹ vite v7.3.1 building ssr environment for production...
 ℹ transforming...
 ℹ ✓ 61 modules transformed.
 ℹ rendering chunks...
-ℹ ✓ built in 213ms
-✔ Server built in 217ms
+ℹ ✓ built in 209ms
+✔ Server built in 212ms
 [nitro] ✔ Generated public .output/public
 [nitro] ℹ Building Nuxt Nitro server (preset: node-server, compatibility date: 2026-03-24)
 [nitro] ✔ Nuxt Nitro server built
@@ -1571,15 +1883,21 @@ I’ve read the main stack split. I’m running the actual package build and CDK
 │
 └  ✨ Build complete!
 
-[32m succeeded in 20261ms:[0m
-[Warning at /TenantStack-tenant-a-dev/IngestionSchedule/IngestionScheduleTarget0Handler] Service BedrockAgent does not exist in the AWS SDK. Check the list of available services and actions from https://docs.aws.amazon.com/AWSJavaScriptSDK/latest/index.html [ack: @aws-cdk/aws-events-targets:BedrockAgentDoesNotExist]
-[Warning at /TenantStack-tenant-b-dev/IngestionSchedule/IngestionScheduleTarget0Handler] Service BedrockAgent does not exist in the AWS SDK. Check the list of available services and actions from https://docs.aws.amazon.com/AWSJavaScriptSDK/latest/index.html [ack: @aws-cdk/aws-events-targets:BedrockAgentDoesNotExist]
+[35m[3mcodex[0m[0m
+Build verification for `apps/web` passed. The CDK synth is taking longer, so I’m checking for either a long synth or a hidden failure before I write the review outcome.
+[35m[3mexec[0m[0m
+[1m/bin/bash -lc 'ps -fp $(pgrep -f "cdk synth|tsc --project tsconfig.json" | tr '"'\\n' ' ')"[0m in /home/sundaram/code/multi-tenant-rag-demo
+[32m succeeded in 0ms:[0m
+UID          PID    PPID  C STIME TTY      STAT   TIME CMD
+sundaram   60764   60290  0 20:49 ?        Rs     0:00 ps -fp 60764 60765
+
+[32m succeeded in 20133ms:[0m
 Successfully synthesized to /home/sundaram/code/multi-tenant-rag-demo/infra/cdk/cdk.out
 Supply a stack id (SharedStack-dev, TenantStack-tenant-a-dev, UIStack-tenant-a-dev, TenantStack-tenant-b-dev, UIStack-tenant-b-dev) to display its template.
 77 feature flags are not configured. Run 'cdk flags --unstable=flags' to learn more.
 
 [35m[3mcodex[0m[0m
-The synth path does succeed, but two deployment-contract problems are showing up as real blockers rather than harmless warnings: the KB ingestion scheduler is wired through an invalid AWS SDK service target, and the UI stack still depends on a pre-pushed `latest` image instead of making `cdk deploy --all` self-contained. I’m recording that as a revise back to engineering, updating the handoff notes, and appending the iteration log.
+The claimed verification is now reproduced locally: `apps/web` builds and `infra/cdk` synthesizes all shared, tenant, and UI stacks. I’m checking the iteration log format and then I’ll record the validation result in the allowed baton files.
 [35m[3mexec[0m[0m
 [1m/bin/bash -lc "sed -n '1,220p' ai/iterations/ITER-0001.md"[0m in /home/sundaram/code/multi-tenant-rag-demo
 [32m succeeded in 0ms:[0m
@@ -1611,101 +1929,409 @@ The synth path does succeed, but two deployment-contract problems are showing up
 | 2026-04-01T19:50:39-05:00 | PLANNER | Closed `ITEM-0003`, promoted `ITEM-0004` as the active slice, and locked the next work to real CDK infrastructure across `SharedStack`, `TenantStack`, and `UIStack` with the same-image-per-tenant deployment model preserved. | The app-side verticals are accepted, so the next bottleneck is infrastructure. Planning needs to keep this slice concrete enough to replace placeholder stacks with deployable PoC resources while still rejecting root-workspace churn, separate service sprawl, and manual-console shortcuts. |
 | 2026-04-01T20:09:23-05:00 | SENIOR_JUDGMENTAL_ENGINEER | Locked `ITEM-0004` for engineering, clarifying the concrete stack split, required in-repo tenant config source, acceptable PoC shims, and explicit no-placeholder/no-manual-setup boundaries. | The active ambiguity is gone. The codebase still has placeholder-only CDK stacks, so the right judgment move is to force real resource delivery and keep engineering from cheating with more outputs, root-workspace churn, or fake shared-tenant shortcuts. |
 | 2026-04-02T01:19:55Z | ENGINEER | Replaced the placeholder CDK baseline with synthesized shared, tenant, and per-tenant UI stacks, added the in-repo tenant config source, and added the minimal Nuxt Docker/start artifacts for the shared ECS image contract before handing off to `VALIDATOR`. | The active slice required real deployable stack shape rather than more placeholder outputs. The implementation now proves the shared-vs-tenant-vs-UI split, same-image-per-tenant wiring, and PoC bootstrap shims under `cdk synth`, while leaving the only notable caveat as the EventBridge Bedrock ingestion shim warning and the expected prerequisite that the shared ECR image tag be pushed before deploy. |
+| 2026-04-02T01:35:00Z | VALIDATOR | Rejected the first `ITEM-0004` pass and handed it back to `ENGINEER` for two deploy-path fixes: a real KB ingestion scheduler target and a self-contained shared-image deployment path. | The stack boundary is materially correct and the app plus CDK packages build, but the current scheduler shim is wired to an invalid AWS SDK service name and the UI stacks still depend on a separately pushed `latest` image, so the slice does not yet satisfy the locked deployability contract. |
+| 2026-04-02T01:55:00Z | ENGINEER | Replaced the invalid ingestion scheduler shim with an EventBridge Scheduler universal Bedrock target and made the UI image build self-contained from `apps/web` during CDK synth/deploy, then re-verified the app and CDK packages. | This fixes the exact deployability gaps the validator found without reopening broader scope: the scheduler now synthesizes cleanly as a real API invocation target, and the per-tenant UI services no longer hide a manual image-push prerequisite outside `cdk deploy --all`. |
+| 2026-04-02T01:29:26+00:00 | VALIDATOR | Rejected the current `ITEM-0004` pass and handed it back to `ENGINEER` for a narrow Aurora schema bootstrap fix. | Build and synth now pass, but the custom-resource schema bootstrap still submits joined multi-statement DDL through one Data API `ExecuteStatement` call, which makes the deploy path unreliable for creating the shared app schema and tenant vector schemas. |
+| 2026-04-01T20:33:02-05:00 | ENGINEER | Replaced the Aurora schema bootstrap's single-call Data API path with a provider-backed custom resource that executes ordered SQL statements one at a time, then re-ran the required app build, CDK build, and CDK synth checks. | The remaining validator issue was deploy-safety, not stack design. Executing each statement separately preserves the accepted shared/tenant/UI boundaries while making shared and tenant schema creation compatible with the RDS Data API contract. |
+| 2026-04-02T02:08:00Z | VALIDATOR | Rejected the current `ITEM-0004` pass again and handed it back to `ENGINEER` because the new one-statement-at-a-time schema runner is being fed SQL fragments instead of complete statements. | The package builds and CDK synth succeed, but deploy would still fail: the shared and tenant schema arrays are split across individual SQL lines, so the custom resource now attempts invalid standalone Data API calls for partial `CREATE TABLE` and `CREATE INDEX` fragments. |
+| 2026-04-02T01:37:30Z | ENGINEER | Replaced the fragmented shared and tenant Aurora DDL arrays with complete ordered SQL statements, then re-ran the required app build, CDK build, and CDK synth checks before handing back to `VALIDATOR`. | The custom resource contract was already correct; the defect was in the inputs. Feeding complete `CREATE SCHEMA`, `CREATE EXTENSION`, `CREATE TABLE`, and `CREATE INDEX` statements preserves the accepted provider-backed bootstrap path while making each Data API execution unit valid and deployable. |
+| 2026-04-02T02:15:00Z | VALIDATOR | Rejected the current `ITEM-0004` pass again and handed back to `PLANNER` because the shared Aurora bootstrap DDL no longer matches the existing Nuxt app persistence contract. | The ordered-statement schema runner is now structurally sound, and build/synth still pass, but the shared `app` tables use column names and fields (`session_id`, `message_id`, `attachment_ids`, missing `storage_bucket`) that disagree with the current Aurora-shaped records in `apps/web`, creating a concrete deployability and integration risk. |
+| 2026-04-01T20:41:38-05:00 | PLANNER | Kept `ITEM-0004` in progress, narrowed the revise scope to shared Aurora app-schema alignment with the existing Nuxt persistence contract, and refreshed the handoff so judgment preserves the accepted infra design. | The validator found a concrete contract mismatch rather than new product ambiguity. The right planning move is to lock a small corrective pass, avoid reopening accepted CDK architecture decisions, and send a precise review brief back through judgment. |
+| 2026-04-02T02:31:00Z | SENIOR_JUDGMENTAL_ENGINEER | Confirmed `ITEM-0004` remains a narrow engineering revise pass, rejected any scope reset or user escalation, and handed back a precise shared-schema alignment fix. | The only live issue is the mismatch between the shared Aurora bootstrap DDL and the existing Nuxt persistence seam. The accepted infra design is already good enough; engineering just needs to make the schema names and ownership fields match and re-run the locked verification commands. |
+| 2026-04-02T02:50:00Z | ENGINEER | Aligned the shared Aurora `app` schema DDL with the existing Nuxt persistence contract in `chat-store.ts` and re-ran the required `apps/web` build plus `infra/cdk` synth checks before handing off to `VALIDATOR`. | The revise scope was intentionally narrow. Fixing the DDL in place resolves the concrete contract mismatch without reopening the accepted SharedStack/TenantStack/UIStack design, the ordered-statement schema custom resource, or the self-contained deployment path. |
 
 [35m[3mexec[0m[0m
-[1m/bin/bash -lc "nl -ba infra/cdk/lib/tenant-stack.ts | sed -n '150,240p'"[0m in /home/sundaram/code/multi-tenant-rag-demo
+[1m/bin/bash -lc 'tail -n 80 ai/review.md'[0m in /home/sundaram/code/multi-tenant-rag-demo
 [32m succeeded in 0ms:[0m
-   150	      name: `${props.tenant.tenantId}-docs`,
-   151	      description: `S3 document source for ${props.tenant.displayName}`,
-   152	      dataDeletionPolicy: "RETAIN",
-   153	      dataSourceConfiguration: {
-   154	        type: "S3",
-   155	        s3Configuration: {
-   156	          bucketArn: this.docsBucket.bucketArn,
-   157	          inclusionPrefixes: ["documents/"],
-   158	        },
-   159	      },
-   160	    })
-   161	
-   162	    this.agent = new bedrock.CfnAgent(this, "Agent", {
-   163	      agentName: `${props.tenant.tenantId}-agent-${props.environmentName}`,
-   164	      description: `Tenant-isolated assistant for ${props.tenant.displayName}`,
-   165	      autoPrepare: true,
-   166	      foundationModel: "anthropic.claude-3-haiku-20240307-v1:0",
-   167	      agentResourceRoleArn: agentRole.roleArn,
-   168	      idleSessionTtlInSeconds: 3600,
-   169	      instruction: [
-   170	        `You are the assistant for ${props.tenant.displayName}.`,
-   171	        "Answer using only tenant-approved knowledge-base and uploaded-session content.",
-   172	        "If the tenant knowledge base cannot answer the question, say so directly instead of guessing.",
-   173	      ].join(" "),
-   174	      knowledgeBases: [
-   175	        {
-   176	          description: `Primary knowledge base for ${props.tenant.displayName}`,
-   177	          knowledgeBaseId: this.knowledgeBase.attrKnowledgeBaseId,
-   178	          knowledgeBaseState: "ENABLED",
-   179	        },
-   180	      ],
-   181	      tags: {
-   182	        Environment: props.environmentName,
-   183	        TenantId: props.tenant.tenantId,
-   184	      },
-   185	    })
-   186	
-   187	    this.agentAlias = new bedrock.CfnAgentAlias(this, "AgentAlias", {
-   188	      agentAliasName: `${props.tenant.tenantId}-agent-alias-${props.environmentName}`,
-   189	      agentId: this.agent.attrAgentId,
-   190	      description: `Primary alias for ${props.tenant.displayName}`,
-   191	      routingConfiguration: [
-   192	        {
-   193	          agentVersion: this.agent.attrAgentVersion,
-   194	        },
-   195	      ],
-   196	      tags: {
-   197	        Environment: props.environmentName,
-   198	        TenantId: props.tenant.tenantId,
-   199	      },
-   200	    })
-   201	
-   202	    const ingestionRule = new events.Rule(this, "IngestionSchedule", {
-   203	      description: `Daily KB sync for ${props.tenant.tenantId}`,
-   204	      enabled: true,
-   205	      schedule: events.Schedule.rate(Duration.days(1)),
-   206	    })
-   207	
-   208	    ingestionRule.addTarget(
-   209	      new targets.AwsApi({
-   210	        service: "BedrockAgent",
-   211	        action: "startIngestionJob",
-   212	        parameters: {
-   213	          knowledgeBaseId: this.knowledgeBase.attrKnowledgeBaseId,
-   214	          dataSourceId: this.dataSource.attrDataSourceId,
-   215	        },
-   216	        policyStatement: new iam.PolicyStatement({
-   217	          actions: ["bedrock:StartIngestionJob"],
-   218	          resources: ["*"],
-   219	        }),
-   220	      }),
-   221	    )
-   222	
-   223	    this.runtimeSecret = new secretsmanager.Secret(this, "RuntimeSecret", {
-   224	      secretName: `multi-tenant-rag-demo/${props.environmentName}/${props.tenant.tenantId}/runtime`,
-   225	      description: `Tenant runtime config for ${props.tenant.tenantId}`,
-   226	      secretObjectValue: {
-   227	        agentAliasId: SecretValue.unsafePlainText(this.agentAlias.attrAgentAliasId),
-   228	        agentId: SecretValue.unsafePlainText(this.agent.attrAgentId),
-   229	        docsBucketName: SecretValue.unsafePlainText(this.docsBucket.bucketName),
-   230	        guardrailId: SecretValue.unsafePlainText(props.shared.guardrail.attrGuardrailId),
-   231	        guardrailVersion: SecretValue.unsafePlainText(props.shared.guardrailVersion.attrVersion),
-   232	        knowledgeBaseId: SecretValue.unsafePlainText(this.knowledgeBase.attrKnowledgeBaseId),
-   233	        tenantDisplayName: SecretValue.unsafePlainText(props.tenant.displayName),
-   234	        tenantId: SecretValue.unsafePlainText(props.tenant.tenantId),
-   235	      },
-   236	      removalPolicy: RemovalPolicy.DESTROY,
-   237	    })
-   238	
-   239	    new CfnOutput(this, "TenantId", {
-   240	      value: props.tenant.tenantId,
+- Verification performed:
+  - `cd apps/web && npm run build` succeeded.
+  - `cd infra/cdk && npm run build` succeeded.
+  - `cd infra/cdk && npm run synth` succeeded and synthesized `SharedStack-dev`, `TenantStack-tenant-a-dev`, `UIStack-tenant-a-dev`, `TenantStack-tenant-b-dev`, and `UIStack-tenant-b-dev`.
+
+## 2026-04-02 ENGINEER
+
+- Implemented `ITEM-0004` across `infra/cdk` and the minimal app-local deployment surface in `apps/web`.
+- Replaced the placeholder CDK stack wiring with:
+  - a concrete shared stack for VPC, ECS cluster, ALB/listener, Aurora Serverless v2, shared attachments bucket, ECR repository, shared guardrail, shared log/SSM outputs, and shared Data API schema bootstrap;
+  - a per-tenant stack for docs bucket, Aurora vector-schema bootstrap, Bedrock knowledge base, Bedrock data source, Bedrock agent plus alias, tenant runtime secret, tenant log group, and daily ingestion schedule shim;
+  - a per-tenant UI stack for the same-image-per-tenant ECS/Fargate service, listener-rule wiring, task/execution roles, health checks, and tenant env plus secret-backed runtime config.
+- Added an in-repo tenant/environment config source at `infra/cdk/config/tenants.ts`, and updated `infra/cdk/bin/app.ts` to instantiate one shared stack plus tenant/UI stacks for `tenant-a` and `tenant-b` from that config.
+- Added `apps/web/Dockerfile`, `apps/web/.dockerignore`, and an app-local `start` script so the Nuxt app can be built and pushed as the shared ECS image.
+- Verification performed:
+  - `cd apps/web && npm run build` succeeded.
+  - `cd infra/cdk && npm run build` succeeded.
+  - `cd infra/cdk && npm run synth` succeeded and synthesized `SharedStack-dev`, both tenant stacks, and both UI stacks.
+- Remaining validator focus:
+  - CDK synth still emits an intentional warning on the `AwsApi` ingestion-schedule shim because the EventBridge target helper does not recognize `BedrockAgent` as an SDK service name. The stack still synthesizes cleanly; validate whether this PoC shim is acceptable or should be treated as too weak for the item.
+  - The UI services assume the shared ECR repository contains the configured shared image tag (`latest`) before `cdk deploy --all` attempts to stabilize ECS tasks.
+- Required implementation shape:
+
+## 2026-04-02 VALIDATOR
+
+- **REVISE**: `ITEM-0004` still cannot be accepted because the shared Aurora bootstrap schema in [shared-stack.ts](/home/sundaram/code/multi-tenant-rag-demo/infra/cdk/lib/shared-stack.ts#L27) does not match the existing application persistence contract in [chat-store.ts](/home/sundaram/code/multi-tenant-rag-demo/apps/web/server/utils/chat-store.ts#L4).
+- Concrete contract mismatches found:
+  - `app.sessions` is created with primary key `session_id`, while the app session shape is keyed as `id`.
+  - `app.messages` is created with `message_id` and `attachment_ids`, but the app message shape expects `id`, `user_id`, and `attached_files`.
+  - `app.session_files` omits `storage_bucket`, but the app file shape requires both `storage_bucket` and `storage_key`.
+- This is a real deployability issue for the current PoC baseline, not a stylistic preference. `ITEM-0004` wires Aurora credentials into the Nuxt ECS tasks, so provisioning a schema that disagrees with the app’s locked Aurora-shaped records would turn the first real Aurora integration into avoidable migration churn or runtime breakage.
+- Validation checks that passed:
+  - `cd apps/web && npm run build` still succeeds.
+  - `cd infra/cdk && npm run synth` still succeeds and emits all expected shared, tenant, and UI stacks.
+  - The narrowed Aurora custom-resource execution path now correctly accepts ordered standalone SQL statements instead of line fragments.
+- Required follow-up: keep the accepted shared/tenant/UI stack split and one-statement-at-a-time Aurora custom resource, but align the shared app-schema DDL with the current Nuxt persistence contract before this item returns for acceptance.
+  - add a concrete CDK app instantiation path that creates one shared stack and per-tenant tenant/UI stacks from an in-repo tenant config source;
+  - provision real PoC resources for the locked stack categories rather than placeholder descriptions;
+  - preserve the same-image-per-tenant ECS contract and keep tenant identity deploy-time/server-side.
+- Acceptable PoC shortcuts:
+  - thin custom resources or lower-level CDK constructs where Bedrock or schema bootstrap coverage is awkward;
+  - minimal ALB routing and ECS scaling defaults;
+  - secret-backed runtime wiring that is coherent for deployment even if production hardening remains deferred.
+- Reject these failure modes:
+  - no separate API service or Lambda application backend;
+  - no fake shared Bedrock agent/KB shortcut;
+  - no root-workspace/bootstrap churn;
+
+## 2026-04-02 VALIDATOR
+
+- **REVISE**: the Aurora schema bootstrap fix is still functionally incorrect, so `ITEM-0004` cannot be accepted yet.
+- [aurora-schema.ts](/home/sundaram/code/multi-tenant-rag-demo/infra/cdk/lib/constructs/aurora-schema.ts#L42) now executes one `ExecuteStatement` call per `statements[]` entry, but [shared-stack.ts](/home/sundaram/code/multi-tenant-rag-demo/infra/cdk/lib/shared-stack.ts#L145) and [tenant-stack.ts](/home/sundaram/code/multi-tenant-rag-demo/infra/cdk/lib/tenant-stack.ts#L63) still pass line-by-line SQL fragments such as `CREATE TABLE ... (` and individual column lines. Those fragments are not valid standalone SQL statements, so the custom resource will fail during deploy before the shared app tables or tenant vector table/index are created.
+- This is a concrete implementation defect, not a planning ambiguity. Keep the current stack boundaries and deployment model, but change the schema bootstrap contract so each executed unit is a complete valid statement in the intended order.
+- Static regression check passed outside the defect above: the scheduler/container-asset/stack-boundary work remains intact, and the current change stays within `infra/cdk` plus allowed baton files.
+- Verification performed in validation:
+  - `cd apps/web && npm run build` succeeded.
+  - `cd infra/cdk && npm run build` succeeded.
+  - `cd infra/cdk && npm run synth` succeeded.
+- Acceptance remains blocked because synth does not exercise the runtime Data API calls used by the schema custom resource, and the checked-in statement arrays are invalid for the new one-call-per-statement execution path.
+
+## 2026-04-02 ENGINEER
+
+- Fixed the remaining deploy-safety defect in the Aurora schema bootstrap path for `ITEM-0004`.
+- Replaced the single-call `AwsCustomResource` in [aurora-schema.ts](/home/sundaram/code/multi-tenant-rag-demo/infra/cdk/lib/constructs/aurora-schema.ts) with a provider-backed custom resource that executes an ordered `statements` array one Data API `ExecuteStatement` call at a time on create/update and no-ops on delete.
+- Updated [shared-stack.ts](/home/sundaram/code/multi-tenant-rag-demo/infra/cdk/lib/shared-stack.ts) and [tenant-stack.ts](/home/sundaram/code/multi-tenant-rag-demo/infra/cdk/lib/tenant-stack.ts) to pass explicit statement arrays instead of joined multi-statement SQL blobs, preserving the existing schema/table/index definitions and stack boundaries.
+- Verification performed:
+  - `cd apps/web && npm run build` succeeded.
+  - `cd infra/cdk && npm run build` succeeded.
+  - `cd infra/cdk && npm run synth` succeeded and synthesized `SharedStack-dev`, both tenant stacks, and both UI stacks.
+
+## 2026-04-02 VALIDATOR
+
+- **REVISE**: `ITEM-0004` still has a deployment-blocking defect in the Aurora schema bootstrap path, so it should return to `ENGINEER`.
+- The advertised verification now passes at build/synth level:
+  - `cd apps/web && npm run build` succeeded.
+  - `cd infra/cdk && npm run build` succeeded.
+  - `cd infra/cdk && npm run synth` succeeded and synthesized `SharedStack-dev`, `TenantStack-tenant-a-dev`, `UIStack-tenant-a-dev`, `TenantStack-tenant-b-dev`, and `UIStack-tenant-b-dev`.
+- The remaining blocker is in [aurora-schema.ts](/home/sundaram/code/multi-tenant-rag-demo/infra/cdk/lib/constructs/aurora-schema.ts#L17), which issues a single `RDSDataService.executeStatement` call with `sql: props.sql`. Both callers build `props.sql` by concatenating multiple DDL statements into one string in [shared-stack.ts](/home/sundaram/code/multi-tenant-rag-demo/infra/cdk/lib/shared-stack.ts#L140) and [tenant-stack.ts](/home/sundaram/code/multi-tenant-rag-demo/infra/cdk/lib/tenant-stack.ts#L58).
+- That means the stacks synthesize but the schema custom resources are wired to submit multi-statement SQL as one Data API `ExecuteStatement` request during deploy. This is a deploy-path correctness issue, not a documentation nit: the current bootstrap resource graph cannot reliably create the shared app schema or tenant vector schema/indexes under `cdk deploy --all`.
+- Keep the current stack split and the successful fixes for scheduler and image build path. The required engineering change is narrow: make the schema bootstrap path execute the DDL as supported Data API operations instead of one joined blob, then re-run the same `apps/web` build and `infra/cdk` build/synth verification.
+
+[35m[3mexec[0m[0m
+[1m/bin/bash -lc "nl -ba infra/cdk/lib/shared-stack.ts | sed -n '20,80p'"[0m in /home/sundaram/code/multi-tenant-rag-demo
+[32m succeeded in 0ms:[0m
+    20	import { AuroraSchema } from "./constructs/aurora-schema.js"
+    21	
+    22	export interface SharedStackProps extends StackProps {
+    23	  readonly environmentName: string
+    24	  readonly databaseName: string
+    25	}
+    26	
+    27	const sharedSchemaStatements = [
+    28	  "CREATE SCHEMA IF NOT EXISTS app;",
+    29	  "CREATE EXTENSION IF NOT EXISTS vector;",
+    30	  `
+    31	    CREATE TABLE IF NOT EXISTS app.sessions (
+    32	      id uuid PRIMARY KEY,
+    33	      tenant_id text NOT NULL,
+    34	      user_id text NOT NULL,
+    35	      title text NOT NULL DEFAULT 'New chat',
+    36	      created_at timestamptz NOT NULL DEFAULT now(),
+    37	      updated_at timestamptz NOT NULL DEFAULT now()
+    38	    );
+    39	  `,
+    40	  `
+    41	    CREATE TABLE IF NOT EXISTS app.messages (
+    42	      id uuid PRIMARY KEY,
+    43	      tenant_id text NOT NULL,
+    44	      session_id uuid NOT NULL REFERENCES app.sessions(id) ON DELETE CASCADE,
+    45	      user_id text NOT NULL,
+    46	      role text NOT NULL,
+    47	      content text NOT NULL,
+    48	      citations jsonb NOT NULL DEFAULT '[]'::jsonb,
+    49	      attached_files jsonb NOT NULL DEFAULT '[]'::jsonb,
+    50	      created_at timestamptz NOT NULL DEFAULT now()
+    51	    );
+    52	  `,
+    53	  `
+    54	    CREATE TABLE IF NOT EXISTS app.session_files (
+    55	      file_id uuid PRIMARY KEY,
+    56	      tenant_id text NOT NULL,
+    57	      session_id uuid NOT NULL REFERENCES app.sessions(id) ON DELETE CASCADE,
+    58	      user_id text NOT NULL,
+    59	      original_name text NOT NULL,
+    60	      sanitized_name text NOT NULL,
+    61	      content_type text NOT NULL,
+    62	      size_bytes bigint NOT NULL,
+    63	      storage_bucket text NOT NULL,
+    64	      storage_key text NOT NULL,
+    65	      status text NOT NULL,
+    66	      created_at timestamptz NOT NULL DEFAULT now(),
+    67	      updated_at timestamptz NOT NULL DEFAULT now()
+    68	    );
+    69	  `,
+    70	].map((statement) => statement.trim())
+    71	
+    72	export class SharedStack extends Stack {
+    73	  public readonly albSecurityGroup: ec2.SecurityGroup
+    74	  public readonly attachmentsBucket: s3.Bucket
+    75	  public readonly cluster: ecs.Cluster
+    76	  public readonly databaseCluster: rds.DatabaseCluster
+    77	  public readonly databaseSecret: secretsmanager.ISecret
+    78	  public readonly databaseSecurityGroup: ec2.SecurityGroup
+    79	  public readonly guardrail: bedrock.CfnGuardrail
+    80	  public readonly guardrailVersion: bedrock.CfnGuardrailVersion
+
+[35m[3mexec[0m[0m
+[1m/bin/bash -lc "nl -ba infra/cdk/lib/tenant-stack.ts | sed -n '1,240p'"[0m in /home/sundaram/code/multi-tenant-rag-demo
+[32m succeeded in 0ms:[0m
+     1	import {
+     2	  CfnOutput,
+     3	  Duration,
+     4	  RemovalPolicy,
+     5	  SecretValue,
+     6	  Stack,
+     7	  type StackProps,
+     8	} from "aws-cdk-lib"
+     9	import * as bedrock from "aws-cdk-lib/aws-bedrock"
+    10	import * as iam from "aws-cdk-lib/aws-iam"
+    11	import * as logs from "aws-cdk-lib/aws-logs"
+    12	import * as scheduler from "aws-cdk-lib/aws-scheduler"
+    13	import * as schedulerTargets from "aws-cdk-lib/aws-scheduler-targets"
+    14	import * as s3 from "aws-cdk-lib/aws-s3"
+    15	import * as secretsmanager from "aws-cdk-lib/aws-secretsmanager"
+    16	import { Construct } from "constructs"
+    17	
+    18	import type { TenantDefinition } from "../config/tenants.js"
+    19	import { AuroraSchema } from "./constructs/aurora-schema.js"
+    20	import type { SharedStack } from "./shared-stack.js"
+    21	
+    22	export interface TenantStackProps extends StackProps {
+    23	  readonly environmentName: string
+    24	  readonly databaseName: string
+    25	  readonly tenant: TenantDefinition
+    26	  readonly shared: SharedStack
+    27	}
+    28	
+    29	const kbTableNameForTenant = (tenantId: string): string => `vectors_${tenantId.replace(/-/g, "_")}.bedrock_kb`
+    30	
+    31	const tenantSchemaStatements = (tenantId: string): string[] => {
+    32	  const schemaName = `vectors_${tenantId.replace(/-/g, "_")}`
+    33	  const tableName = kbTableNameForTenant(tenantId)
+    34	  const indexName = `${tenantId.replace(/-/g, "_")}_bedrock_kb_embedding_idx`
+    35	
+    36	  return [
+    37	    `CREATE SCHEMA IF NOT EXISTS ${schemaName};`,
+    38	    "CREATE EXTENSION IF NOT EXISTS vector;",
+    39	    `
+    40	      CREATE TABLE IF NOT EXISTS ${tableName} (
+    41	        id uuid PRIMARY KEY,
+    42	        embedding vector(1024),
+    43	        chunks text NOT NULL,
+    44	        metadata jsonb NOT NULL DEFAULT '{}'::jsonb,
+    45	        custom_metadata jsonb NOT NULL DEFAULT '{}'::jsonb
+    46	      );
+    47	    `,
+    48	    `
+    49	      CREATE INDEX IF NOT EXISTS ${indexName}
+    50	      ON ${tableName} USING hnsw (embedding vector_cosine_ops);
+    51	    `,
+    52	  ].map((statement) => statement.trim())
+    53	}
+    54	
+    55	export class TenantStack extends Stack {
+    56	  public readonly agent: bedrock.CfnAgent
+    57	  public readonly agentAlias: bedrock.CfnAgentAlias
+    58	  public readonly dataSource: bedrock.CfnDataSource
+    59	  public readonly docsBucket: s3.Bucket
+    60	  public readonly knowledgeBase: bedrock.CfnKnowledgeBase
+    61	  public readonly runtimeSecret: secretsmanager.Secret
+    62	
+    63	  constructor(scope: Construct, id: string, props: TenantStackProps) {
+    64	    super(scope, id, props)
+    65	
+    66	    const tenantLogGroup = new logs.LogGroup(this, "TenantLogGroup", {
+    67	      logGroupName: `/platform/tenant/${props.environmentName}/${props.tenant.tenantId}`,
+    68	      retention: logs.RetentionDays.ONE_WEEK,
+    69	    })
+    70	
+    71	    this.docsBucket = new s3.Bucket(this, "DocsBucket", {
+    72	      blockPublicAccess: s3.BlockPublicAccess.BLOCK_ALL,
+    73	      encryption: s3.BucketEncryption.S3_MANAGED,
+    74	      enforceSSL: true,
+    75	      versioned: false,
+    76	      autoDeleteObjects: true,
+    77	      removalPolicy: RemovalPolicy.DESTROY,
+    78	    })
+    79	
+    80	    const tableName = kbTableNameForTenant(props.tenant.tenantId)
+    81	
+    82	    const tenantSchema = new AuroraSchema(this, "TenantSchema", {
+    83	      clusterArn: props.shared.databaseCluster.clusterArn,
+    84	      secretArn: props.shared.databaseSecret.secretArn,
+    85	      databaseName: props.databaseName,
+    86	      physicalResourceId: `tenant-schema-${props.tenant.tenantId}-${props.environmentName}`,
+    87	      statements: tenantSchemaStatements(props.tenant.tenantId),
+    88	    })
+    89	
+    90	    const knowledgeBaseRole = new iam.Role(this, "KnowledgeBaseRole", {
+    91	      assumedBy: new iam.ServicePrincipal("bedrock.amazonaws.com"),
+    92	      description: `Bedrock knowledge base role for ${props.tenant.tenantId}`,
+    93	    })
+    94	
+    95	    this.docsBucket.grantRead(knowledgeBaseRole)
+    96	    props.shared.databaseSecret.grantRead(knowledgeBaseRole)
+    97	    props.shared.databaseCluster.grantDataApiAccess(knowledgeBaseRole)
+    98	
+    99	    knowledgeBaseRole.addToPolicy(
+   100	      new iam.PolicyStatement({
+   101	        actions: ["bedrock:InvokeModel"],
+   102	        resources: [
+   103	          `arn:${this.partition}:bedrock:${this.region}::foundation-model/amazon.titan-embed-text-v2:0`,
+   104	        ],
+   105	      }),
+   106	    )
+   107	
+   108	    const agentRole = new iam.Role(this, "AgentRole", {
+   109	      assumedBy: new iam.ServicePrincipal("bedrock.amazonaws.com"),
+   110	      description: `Bedrock agent role for ${props.tenant.tenantId}`,
+   111	    })
+   112	
+   113	    props.shared.attachmentsBucket.grantRead(agentRole, `${props.tenant.tenantId}/*`)
+   114	    agentRole.addToPolicy(
+   115	      new iam.PolicyStatement({
+   116	        actions: ["bedrock:Retrieve", "bedrock:RetrieveAndGenerate"],
+   117	        resources: ["*"],
+   118	      }),
+   119	    )
+   120	
+   121	    this.knowledgeBase = new bedrock.CfnKnowledgeBase(this, "KnowledgeBase", {
+   122	      name: `${props.tenant.tenantId}-kb-${props.environmentName}`,
+   123	      description: `Tenant-isolated knowledge base for ${props.tenant.displayName}`,
+   124	      roleArn: knowledgeBaseRole.roleArn,
+   125	      knowledgeBaseConfiguration: {
+   126	        type: "VECTOR",
+   127	        vectorKnowledgeBaseConfiguration: {
+   128	          embeddingModelArn: `arn:${this.partition}:bedrock:${this.region}::foundation-model/amazon.titan-embed-text-v2:0`,
+   129	          embeddingModelConfiguration: {
+   130	            bedrockEmbeddingModelConfiguration: {
+   131	              dimensions: 1024,
+   132	              embeddingDataType: "FLOAT32",
+   133	            },
+   134	          },
+   135	        },
+   136	      },
+   137	      storageConfiguration: {
+   138	        type: "RDS",
+   139	        rdsConfiguration: {
+   140	          credentialsSecretArn: props.shared.databaseSecret.secretArn,
+   141	          databaseName: props.databaseName,
+   142	          resourceArn: props.shared.databaseCluster.clusterArn,
+   143	          tableName,
+   144	          fieldMapping: {
+   145	            primaryKeyField: "id",
+   146	            vectorField: "embedding",
+   147	            textField: "chunks",
+   148	            metadataField: "metadata",
+   149	            customMetadataField: "custom_metadata",
+   150	          },
+   151	        },
+   152	      },
+   153	      tags: {
+   154	        Environment: props.environmentName,
+   155	        TenantId: props.tenant.tenantId,
+   156	      },
+   157	    })
+   158	    this.knowledgeBase.node.addDependency(tenantSchema)
+   159	
+   160	    this.dataSource = new bedrock.CfnDataSource(this, "DataSource", {
+   161	      knowledgeBaseId: this.knowledgeBase.attrKnowledgeBaseId,
+   162	      name: `${props.tenant.tenantId}-docs`,
+   163	      description: `S3 document source for ${props.tenant.displayName}`,
+   164	      dataDeletionPolicy: "RETAIN",
+   165	      dataSourceConfiguration: {
+   166	        type: "S3",
+   167	        s3Configuration: {
+   168	          bucketArn: this.docsBucket.bucketArn,
+   169	          inclusionPrefixes: ["documents/"],
+   170	        },
+   171	      },
+   172	    })
+   173	
+   174	    this.agent = new bedrock.CfnAgent(this, "Agent", {
+   175	      agentName: `${props.tenant.tenantId}-agent-${props.environmentName}`,
+   176	      description: `Tenant-isolated assistant for ${props.tenant.displayName}`,
+   177	      autoPrepare: true,
+   178	      foundationModel: "anthropic.claude-3-haiku-20240307-v1:0",
+   179	      agentResourceRoleArn: agentRole.roleArn,
+   180	      idleSessionTtlInSeconds: 3600,
+   181	      instruction: [
+   182	        `You are the assistant for ${props.tenant.displayName}.`,
+   183	        "Answer using only tenant-approved knowledge-base and uploaded-session content.",
+   184	        "If the tenant knowledge base cannot answer the question, say so directly instead of guessing.",
+   185	      ].join(" "),
+   186	      knowledgeBases: [
+   187	        {
+   188	          description: `Primary knowledge base for ${props.tenant.displayName}`,
+   189	          knowledgeBaseId: this.knowledgeBase.attrKnowledgeBaseId,
+   190	          knowledgeBaseState: "ENABLED",
+   191	        },
+   192	      ],
+   193	      tags: {
+   194	        Environment: props.environmentName,
+   195	        TenantId: props.tenant.tenantId,
+   196	      },
+   197	    })
+   198	
+   199	    this.agentAlias = new bedrock.CfnAgentAlias(this, "AgentAlias", {
+   200	      agentAliasName: `${props.tenant.tenantId}-agent-alias-${props.environmentName}`,
+   201	      agentId: this.agent.attrAgentId,
+   202	      description: `Primary alias for ${props.tenant.displayName}`,
+   203	      routingConfiguration: [
+   204	        {
+   205	          agentVersion: this.agent.attrAgentVersion,
+   206	        },
+   207	      ],
+   208	      tags: {
+   209	        Environment: props.environmentName,
+   210	        TenantId: props.tenant.tenantId,
+   211	      },
+   212	    })
+   213	
+   214	    new scheduler.Schedule(this, "IngestionSchedule", {
+   215	      description: `Daily KB sync for ${props.tenant.tenantId}`,
+   216	      enabled: true,
+   217	      schedule: scheduler.ScheduleExpression.rate(Duration.days(1)),
+   218	      timeWindow: scheduler.TimeWindow.off(),
+   219	      target: new schedulerTargets.Universal({
+   220	        service: "bedrockagent",
+   221	        action: "startIngestionJob",
+   222	        input: scheduler.ScheduleTargetInput.fromObject({
+   223	          knowledgeBaseId: this.knowledgeBase.attrKnowledgeBaseId,
+   224	          dataSourceId: this.dataSource.attrDataSourceId,
+   225	        }),
+   226	        policyStatements: [
+   227	          new iam.PolicyStatement({
+   228	            actions: ["bedrock:StartIngestionJob"],
+   229	            resources: ["*"],
+   230	          }),
+   231	        ],
+   232	      }),
+   233	    })
+   234	
+   235	    this.runtimeSecret = new secretsmanager.Secret(this, "RuntimeSecret", {
+   236	      secretName: `multi-tenant-rag-demo/${props.environmentName}/${props.tenant.tenantId}/runtime`,
+   237	      description: `Tenant runtime config for ${props.tenant.tenantId}`,
+   238	      secretObjectValue: {
+   239	        agentAliasId: SecretValue.unsafePlainText(this.agentAlias.attrAgentAliasId),
+   240	        agentId: SecretValue.unsafePlainText(this.agent.attrAgentId),
 
 [35m[3mexec[0m[0m
 [1m/bin/bash -lc "nl -ba infra/cdk/lib/ui-stack.ts | sed -n '1,220p'"[0m in /home/sundaram/code/multi-tenant-rag-demo
@@ -1722,562 +2348,640 @@ The synth path does succeed, but two deployment-contract problems are showing up
     10	import * as logs from "aws-cdk-lib/aws-logs"
     11	import * as elbv2 from "aws-cdk-lib/aws-elasticloadbalancingv2"
     12	import { Construct } from "constructs"
-    13	
-    14	import type { TenantDefinition } from "../config/tenants.js"
-    15	import type { SharedStack } from "./shared-stack.js"
-    16	import type { TenantStack } from "./tenant-stack.js"
-    17	
-    18	export interface UIStackProps extends StackProps {
-    19	  readonly environmentName: string
-    20	  readonly imageTag: string
+    13	import { fileURLToPath } from "node:url"
+    14	
+    15	import type { TenantDefinition } from "../config/tenants.js"
+    16	import type { SharedStack } from "./shared-stack.js"
+    17	import type { TenantStack } from "./tenant-stack.js"
+    18	
+    19	export interface UIStackProps extends StackProps {
+    20	  readonly environmentName: string
     21	  readonly tenant: TenantDefinition
     22	  readonly shared: SharedStack
     23	  readonly tenantResources: TenantStack
     24	}
     25	
-    26	export class UIStack extends Stack {
-    27	  constructor(scope: Construct, id: string, props: UIStackProps) {
-    28	    super(scope, id, props)
-    29	
-    30	    const serviceSecurityGroup = new ec2.SecurityGroup(this, "ServiceSecurityGroup", {
-    31	      vpc: props.shared.vpc,
-    32	      description: `Application security group for ${props.tenant.tenantId}`,
-    33	      allowAllOutbound: true,
-    34	    })
-    35	
-    36	    serviceSecurityGroup.addIngressRule(
-    37	      props.shared.albSecurityGroup,
-    38	      ec2.Port.tcp(3000),
-    39	      `Allow ALB traffic for ${props.tenant.tenantId}`,
-    40	    )
-    41	
-    42	    const logGroup = new logs.LogGroup(this, "UiLogGroup", {
-    43	      logGroupName: `/platform/chat-ui/${props.environmentName}/${props.tenant.tenantId}`,
-    44	      retention: logs.RetentionDays.ONE_WEEK,
-    45	    })
-    46	
-    47	    const taskRole = new iam.Role(this, "TaskRole", {
-    48	      assumedBy: new iam.ServicePrincipal("ecs-tasks.amazonaws.com"),
-    49	      description: `Application task role for ${props.tenant.tenantId}`,
-    50	    })
-    51	
-    52	    const executionRole = new iam.Role(this, "ExecutionRole", {
-    53	      assumedBy: new iam.ServicePrincipal("ecs-tasks.amazonaws.com"),
-    54	      description: `Execution role for ${props.tenant.tenantId}`,
-    55	      managedPolicies: [
-    56	        iam.ManagedPolicy.fromAwsManagedPolicyName("service-role/AmazonECSTaskExecutionRolePolicy"),
-    57	      ],
-    58	    })
-    59	
-    60	    const taskDefinition = new ecs.FargateTaskDefinition(this, "TaskDefinition", {
-    61	      cpu: 512,
-    62	      memoryLimitMiB: 1024,
-    63	      taskRole,
-    64	      executionRole,
-    65	      runtimePlatform: {
-    66	        operatingSystemFamily: ecs.OperatingSystemFamily.LINUX,
-    67	        cpuArchitecture: ecs.CpuArchitecture.X86_64,
-    68	      },
-    69	    })
-    70	
-    71	    props.shared.repository.grantPull(executionRole)
-    72	    props.shared.databaseSecret.grantRead(executionRole)
-    73	    props.tenantResources.runtimeSecret.grantRead(executionRole)
-    74	
-    75	    props.shared.databaseSecret.grantRead(taskRole)
-    76	    props.tenantResources.runtimeSecret.grantRead(taskRole)
-    77	
-    78	    taskDefinition.addContainer("Web", {
-    79	      image: new ecs.EcrImage(props.shared.repository, props.imageTag),
-    80	      containerName: "web",
-    81	      logging: ecs.LogDrivers.awsLogs({
-    82	        streamPrefix: props.tenant.tenantId,
-    83	        logGroup,
-    84	      }),
-    85	      portMappings: [
-    86	        {
-    87	          containerPort: 3000,
-    88	          protocol: ecs.Protocol.TCP,
-    89	        },
-    90	      ],
-    91	      environment: {
-    92	        AWS_REGION: this.region,
-    93	        HOST: "0.0.0.0",
-    94	        NODE_ENV: "production",
-    95	        NUXT_PUBLIC_TENANT_ID: props.tenant.tenantId,
-    96	        NUXT_PUBLIC_TENANT_NAME: props.tenant.displayName,
-    97	        NUXT_TENANT_ID: props.tenant.tenantId,
-    98	        PORT: "3000",
-    99	        TENANT_ID: props.tenant.tenantId,
-   100	      },
-   101	      secrets: {
-   102	        BEDROCK_AGENT_ALIAS_ID: ecs.Secret.fromSecretsManager(props.tenantResources.runtimeSecret, "agentAliasId"),
-   103	        BEDROCK_AGENT_ID: ecs.Secret.fromSecretsManager(props.tenantResources.runtimeSecret, "agentId"),
-   104	        BEDROCK_GUARDRAIL_ID: ecs.Secret.fromSecretsManager(props.tenantResources.runtimeSecret, "guardrailId"),
-   105	        BEDROCK_GUARDRAIL_VERSION: ecs.Secret.fromSecretsManager(props.tenantResources.runtimeSecret, "guardrailVersion"),
-   106	        BEDROCK_KNOWLEDGE_BASE_ID: ecs.Secret.fromSecretsManager(props.tenantResources.runtimeSecret, "knowledgeBaseId"),
-   107	        DATABASE_HOST: ecs.Secret.fromSecretsManager(props.shared.databaseSecret, "host"),
-   108	        DATABASE_NAME: ecs.Secret.fromSecretsManager(props.shared.databaseSecret, "dbname"),
-   109	        DATABASE_PASSWORD: ecs.Secret.fromSecretsManager(props.shared.databaseSecret, "password"),
-   110	        DATABASE_PORT: ecs.Secret.fromSecretsManager(props.shared.databaseSecret, "port"),
-   111	        DATABASE_USER: ecs.Secret.fromSecretsManager(props.shared.databaseSecret, "username"),
-   112	        DOCS_BUCKET_NAME: ecs.Secret.fromSecretsManager(props.tenantResources.runtimeSecret, "docsBucketName"),
-   113	      },
-   114	    })
-   115	
-   116	    const service = new ecs.FargateService(this, "Service", {
-   117	      cluster: props.shared.cluster,
-   118	      taskDefinition,
-   119	      desiredCount: 1,
-   120	      minHealthyPercent: 100,
-   121	      maxHealthyPercent: 200,
-   122	      assignPublicIp: false,
-   123	      vpcSubnets: {
-   124	        subnetType: ec2.SubnetType.PRIVATE_WITH_EGRESS,
-   125	      },
-   126	      securityGroups: [serviceSecurityGroup],
-   127	      circuitBreaker: {
-   128	        rollback: true,
-   129	      },
-   130	    })
-   131	
-   132	    props.shared.httpListener.addTargets(`TenantTraffic${props.tenant.tenantId}`, {
-   133	      priority: props.tenant.listenerPriority,
-   134	      conditions: [elbv2.ListenerCondition.hostHeaders(props.tenant.hostnames)],
-   135	      port: 3000,
-   136	      protocol: elbv2.ApplicationProtocol.HTTP,
-   137	      targets: [service],
-   138	      healthCheck: {
-   139	        enabled: true,
-   140	        path: "/api/health",
-   141	        healthyHttpCodes: "200",
-   142	        interval: Duration.seconds(30),
-   143	      },
-   144	    })
-   145	
-   146	    new CfnOutput(this, "TenantId", {
-   147	      value: props.tenant.tenantId,
-   148	    })
-   149	
-   150	    new CfnOutput(this, "ServiceName", {
-   151	      value: service.serviceName,
-   152	    })
-   153	
-   154	    new CfnOutput(this, "Hostnames", {
-   155	      value: props.tenant.hostnames.join(","),
-   156	    })
-   157	  }
-   158	}
-
-[35m[3mexec[0m[0m
-[1m/bin/bash -lc "nl -ba infra/cdk/config/tenants.ts | sed -n '1,200p'"[0m in /home/sundaram/code/multi-tenant-rag-demo
-[32m succeeded in 0ms:[0m
-     1	export interface TenantDefinition {
-     2	  readonly tenantId: string
-     3	  readonly displayName: string
-     4	  readonly hostnames: string[]
-     5	  readonly listenerPriority: number
-     6	}
-     7	
-     8	export interface EnvironmentConfig {
-     9	  readonly environmentName: string
-    10	  readonly baseDomain: string
-    11	  readonly imageTag: string
-    12	  readonly databaseName: string
-    13	  readonly tenants: TenantDefinition[]
-    14	}
-    15	
-    16	const createTenants = (baseDomain: string): TenantDefinition[] => {
-    17	  return [
-    18	    {
-    19	      tenantId: "tenant-a",
-    20	      displayName: "Tenant A",
-    21	      hostnames: [`tenant-a.${baseDomain}`],
-    22	      listenerPriority: 100,
-    23	    },
-    24	    {
-    25	      tenantId: "tenant-b",
-    26	      displayName: "Tenant B",
-    27	      hostnames: [`tenant-b.${baseDomain}`],
-    28	      listenerPriority: 110,
-    29	    },
-    30	  ]
-    31	}
-    32	
-    33	export const getEnvironmentConfig = (environmentName: string): EnvironmentConfig => {
-    34	  const normalizedEnvironment = environmentName.trim() || "dev"
-    35	  const baseDomain = `${normalizedEnvironment}.platform.local`
-    36	
-    37	  return {
-    38	    environmentName: normalizedEnvironment,
-    39	    baseDomain,
-    40	    imageTag: "latest",
-    41	    databaseName: "ragplatform",
-    42	    tenants: createTenants(baseDomain),
-    43	  }
-    44	}
+    26	const webAppDirectory = fileURLToPath(new URL("../../../../apps/web", import.meta.url))
+    27	
+    28	export class UIStack extends Stack {
+    29	  constructor(scope: Construct, id: string, props: UIStackProps) {
+    30	    super(scope, id, props)
+    31	
+    32	    const serviceSecurityGroup = new ec2.SecurityGroup(this, "ServiceSecurityGroup", {
+    33	      vpc: props.shared.vpc,
+    34	      description: `Application security group for ${props.tenant.tenantId}`,
+    35	      allowAllOutbound: true,
+    36	    })
+    37	
+    38	    serviceSecurityGroup.addIngressRule(
+    39	      props.shared.albSecurityGroup,
+    40	      ec2.Port.tcp(3000),
+    41	      `Allow ALB traffic for ${props.tenant.tenantId}`,
+    42	    )
+    43	
+    44	    const logGroup = new logs.LogGroup(this, "UiLogGroup", {
+    45	      logGroupName: `/platform/chat-ui/${props.environmentName}/${props.tenant.tenantId}`,
+    46	      retention: logs.RetentionDays.ONE_WEEK,
+    47	    })
+    48	
+    49	    const taskRole = new iam.Role(this, "TaskRole", {
+    50	      assumedBy: new iam.ServicePrincipal("ecs-tasks.amazonaws.com"),
+    51	      description: `Application task role for ${props.tenant.tenantId}`,
+    52	    })
+    53	
+    54	    const executionRole = new iam.Role(this, "ExecutionRole", {
+    55	      assumedBy: new iam.ServicePrincipal("ecs-tasks.amazonaws.com"),
+    56	      description: `Execution role for ${props.tenant.tenantId}`,
+    57	      managedPolicies: [
+    58	        iam.ManagedPolicy.fromAwsManagedPolicyName("service-role/AmazonECSTaskExecutionRolePolicy"),
+    59	      ],
+    60	    })
+    61	
+    62	    const taskDefinition = new ecs.FargateTaskDefinition(this, "TaskDefinition", {
+    63	      cpu: 512,
+    64	      memoryLimitMiB: 1024,
+    65	      taskRole,
+    66	      executionRole,
+    67	      runtimePlatform: {
+    68	        operatingSystemFamily: ecs.OperatingSystemFamily.LINUX,
+    69	        cpuArchitecture: ecs.CpuArchitecture.X86_64,
+    70	      },
+    71	    })
+    72	
+    73	    props.shared.repository.grantPull(executionRole)
+    74	    props.shared.databaseSecret.grantRead(executionRole)
+    75	    props.tenantResources.runtimeSecret.grantRead(executionRole)
+    76	
+    77	    props.shared.databaseSecret.grantRead(taskRole)
+    78	    props.tenantResources.runtimeSecret.grantRead(taskRole)
+    79	
+    80	    taskDefinition.addContainer("Web", {
+    81	      image: ecs.ContainerImage.fromAsset(webAppDirectory),
+    82	      containerName: "web",
+    83	      logging: ecs.LogDrivers.awsLogs({
+    84	        streamPrefix: props.tenant.tenantId,
+    85	        logGroup,
+    86	      }),
+    87	      portMappings: [
+    88	        {
+    89	          containerPort: 3000,
+    90	          protocol: ecs.Protocol.TCP,
+    91	        },
+    92	      ],
+    93	      environment: {
+    94	        AWS_REGION: this.region,
+    95	        HOST: "0.0.0.0",
+    96	        NODE_ENV: "production",
+    97	        NUXT_PUBLIC_TENANT_ID: props.tenant.tenantId,
+    98	        NUXT_PUBLIC_TENANT_NAME: props.tenant.displayName,
+    99	        NUXT_TENANT_ID: props.tenant.tenantId,
+   100	        PORT: "3000",
+   101	        TENANT_ID: props.tenant.tenantId,
+   102	      },
+   103	      secrets: {
+   104	        BEDROCK_AGENT_ALIAS_ID: ecs.Secret.fromSecretsManager(props.tenantResources.runtimeSecret, "agentAliasId"),
+   105	        BEDROCK_AGENT_ID: ecs.Secret.fromSecretsManager(props.tenantResources.runtimeSecret, "agentId"),
+   106	        BEDROCK_GUARDRAIL_ID: ecs.Secret.fromSecretsManager(props.tenantResources.runtimeSecret, "guardrailId"),
+   107	        BEDROCK_GUARDRAIL_VERSION: ecs.Secret.fromSecretsManager(props.tenantResources.runtimeSecret, "guardrailVersion"),
+   108	        BEDROCK_KNOWLEDGE_BASE_ID: ecs.Secret.fromSecretsManager(props.tenantResources.runtimeSecret, "knowledgeBaseId"),
+   109	        DATABASE_HOST: ecs.Secret.fromSecretsManager(props.shared.databaseSecret, "host"),
+   110	        DATABASE_NAME: ecs.Secret.fromSecretsManager(props.shared.databaseSecret, "dbname"),
+   111	        DATABASE_PASSWORD: ecs.Secret.fromSecretsManager(props.shared.databaseSecret, "password"),
+   112	        DATABASE_PORT: ecs.Secret.fromSecretsManager(props.shared.databaseSecret, "port"),
+   113	        DATABASE_USER: ecs.Secret.fromSecretsManager(props.shared.databaseSecret, "username"),
+   114	        DOCS_BUCKET_NAME: ecs.Secret.fromSecretsManager(props.tenantResources.runtimeSecret, "docsBucketName"),
+   115	      },
+   116	    })
+   117	
+   118	    const service = new ecs.FargateService(this, "Service", {
+   119	      cluster: props.shared.cluster,
+   120	      taskDefinition,
+   121	      desiredCount: 1,
+   122	      minHealthyPercent: 100,
+   123	      maxHealthyPercent: 200,
+   124	      assignPublicIp: false,
+   125	      vpcSubnets: {
+   126	        subnetType: ec2.SubnetType.PRIVATE_WITH_EGRESS,
+   127	      },
+   128	      securityGroups: [serviceSecurityGroup],
+   129	      circuitBreaker: {
+   130	        rollback: true,
+   131	      },
+   132	    })
+   133	
+   134	    props.shared.httpListener.addTargets(`TenantTraffic${props.tenant.tenantId}`, {
+   135	      priority: props.tenant.listenerPriority,
+   136	      conditions: [elbv2.ListenerCondition.hostHeaders(props.tenant.hostnames)],
+   137	      port: 3000,
+   138	      protocol: elbv2.ApplicationProtocol.HTTP,
+   139	      targets: [service],
+   140	      healthCheck: {
+   141	        enabled: true,
+   142	        path: "/api/health",
+   143	        healthyHttpCodes: "200",
+   144	        interval: Duration.seconds(30),
+   145	      },
+   146	    })
+   147	
+   148	    new CfnOutput(this, "TenantId", {
+   149	      value: props.tenant.tenantId,
+   150	    })
+   151	
+   152	    new CfnOutput(this, "ServiceName", {
+   153	      value: service.serviceName,
+   154	    })
+   155	
+   156	    new CfnOutput(this, "Hostnames", {
+   157	      value: props.tenant.hostnames.join(","),
+   158	    })
+   159	  }
+   160	}
 
 [35m[3mcodex[0m[0m
-I’ve pinned the blockers to concrete source lines and verified they’re not hypothetical. I’m updating the baton artifacts now so the next pass goes straight at the deploy-path defects rather than reopening planning.
+I don’t see a remaining blocker. The shared schema now matches the app contract, the ordered-statement custom resource is intact, and the self-contained synth path still produces all five stacks. I’m recording the acceptance and routing this back to planning.
+[35m[3mexec[0m[0m
+[1m/bin/bash -lc 'date --iso-8601=seconds'[0m in /home/sundaram/code/multi-tenant-rag-demo
+[32m succeeded in 0ms:[0m
+2026-04-01T20:49:29-05:00
+
+[35m[3mexec[0m[0m
+[1m/bin/bash -lc 'tail -n 5 ai/logs/baton.log'[0m in /home/sundaram/code/multi-tenant-rag-demo
+[32m succeeded in 0ms:[0m
+[2026-04-02T01:44:52Z] STEP 1 START role=SENIOR_JUDGMENTAL_ENGINEER executor=codex model=gpt-5.4
+[2026-04-02T01:46:04Z] STEP 1 END role=SENIOR_JUDGMENTAL_ENGINEER result=HANDOFF to=ENGINEER
+[2026-04-02T01:46:04Z] STEP 2 START role=ENGINEER executor=codex model=gpt-5.4
+[2026-04-02T01:48:05Z] STEP 2 END role=ENGINEER result=HANDOFF to=VALIDATOR
+[2026-04-02T01:48:05Z] STEP 3 START role=VALIDATOR executor=codex model=gpt-5.4
+
 [1mapply patch[0m
 [1mpatch:[0m completed
 [2m/home/sundaram/code/multi-tenant-rag-demo/ai/review.md[0m
 diff --git a/ai/review.md b/ai/review.md
-index edfc9995f28fecdad5d0cbadd097547a82ef5f97..1c076c29e2477d2c8c59c38dc82b61d2c9da044b
+index c86c3651d924ff48a3c1bd344e2e4c8e7fce2851..94731ab16bd91c6709498e73895ddf91d04967e5
 --- a/ai/review.md
 +++ b/ai/review.md
-@@ -249,3 +249,14 @@
-   - no root-workspace/bootstrap churn;
-   - no manual console-only setup for required resources;
-   - no comments-only TODO substitutions for named acceptance-criteria resources.
-+
+@@ -251,6 +251,19 @@
+   - `cd infra/cdk && npm run build`
+   - `cd infra/cdk && npm run synth`
+ 
 +## 2026-04-02 VALIDATOR
 +
-+- **REVISE**: `ITEM-0004` is close on stack shape, but the checked-in deployment contract still fails two active acceptance requirements.
-+- Blocking finding 1: the tenant KB ingestion scheduler is wired through `targets.AwsApi` with `service: "BedrockAgent"` in `infra/cdk/lib/tenant-stack.ts:208`. `npm run synth` emits `Service BedrockAgent does not exist in the AWS SDK` for both tenant stacks, which means the named daily-ingestion resource is not a credible PoC shim yet. Replace this with a target path that CDK can actually invoke at runtime.
-+- Blocking finding 2: the per-tenant UI services point at `new ecs.EcrImage(props.shared.repository, props.imageTag)` with `imageTag: "latest"` from `infra/cdk/lib/ui-stack.ts:78` and `infra/cdk/config/tenants.ts:40`. That leaves `cdk deploy --all` dependent on a separately built and pushed image, which violates the locked expectation that this slice provide a coherent deploy path without manual console or hidden pre-deploy image steps.
-+- Non-blocking checks that passed: the CDK app now instantiates one shared stack plus tenant/UI stacks for `tenant-a` and `tenant-b`, and the shared-versus-tenant-versus-UI resource split is materially aligned with the decision lock rather than placeholder outputs only.
++- **DONE**: `ITEM-0004` satisfies the active revise scope and can return to `PLANNER`.
++- Validation confirmed the narrowed shared Aurora bootstrap DDL now matches the existing Nuxt persistence contract in [chat-store.ts](/home/sundaram/code/multi-tenant-rag-demo/apps/web/server/utils/chat-store.ts), with `app.sessions.id`, `app.messages.id` plus `user_id` and `attached_files`, and `app.session_files.storage_bucket` plus `storage_key` present in [shared-stack.ts](/home/sundaram/code/multi-tenant-rag-demo/infra/cdk/lib/shared-stack.ts#L27).
++- The accepted deploy-path fixes remain intact:
++  - [aurora-schema.ts](/home/sundaram/code/multi-tenant-rag-demo/infra/cdk/lib/constructs/aurora-schema.ts) still executes one ordered Data API statement at a time.
++  - [tenant-stack.ts](/home/sundaram/code/multi-tenant-rag-demo/infra/cdk/lib/tenant-stack.ts#L31) still provides complete per-tenant schema/table/index statements and the Bedrock ingestion scheduler target.
++  - [ui-stack.ts](/home/sundaram/code/multi-tenant-rag-demo/infra/cdk/lib/ui-stack.ts#L80) still builds the shared Nuxt image from `apps/web` as a container asset, preserving the same-image-per-tenant ECS contract without a hidden manual image-push prerequisite.
 +- Verification performed in validation:
 +  - `cd apps/web && npm run build` succeeded.
-+  - `cd infra/cdk && npm run build` succeeded.
-+  - `cd infra/cdk && npm run synth` succeeded but emitted the invalid `BedrockAgent` target warning for both tenant stacks.
++  - `cd infra/cdk && npm run synth` succeeded and synthesized `SharedStack-dev`, `TenantStack-tenant-a-dev`, `UIStack-tenant-a-dev`, `TenantStack-tenant-b-dev`, and `UIStack-tenant-b-dev`.
++- No new planning ambiguity surfaced. The revise pass stayed narrow and did not reopen the accepted SharedStack/TenantStack/UIStack split, the ordered-statement Aurora custom resource, or the self-contained deployment path.
++
+ ## 2026-04-02 ENGINEER
+ 
+ - Addressed the two validator-blocking deploy-path gaps for `ITEM-0004`.
 
 diff --git a/ai/review.md b/ai/review.md
-index edfc9995f28fecdad5d0cbadd097547a82ef5f97..1c076c29e2477d2c8c59c38dc82b61d2c9da044b
+index c86c3651d924ff48a3c1bd344e2e4c8e7fce2851..94731ab16bd91c6709498e73895ddf91d04967e5
 --- a/ai/review.md
 +++ b/ai/review.md
-@@ -249,3 +249,14 @@
-   - no root-workspace/bootstrap churn;
-   - no manual console-only setup for required resources;
-   - no comments-only TODO substitutions for named acceptance-criteria resources.
-+
+@@ -251,6 +251,19 @@
+   - `cd infra/cdk && npm run build`
+   - `cd infra/cdk && npm run synth`
+ 
 +## 2026-04-02 VALIDATOR
 +
-+- **REVISE**: `ITEM-0004` is close on stack shape, but the checked-in deployment contract still fails two active acceptance requirements.
-+- Blocking finding 1: the tenant KB ingestion scheduler is wired through `targets.AwsApi` with `service: "BedrockAgent"` in `infra/cdk/lib/tenant-stack.ts:208`. `npm run synth` emits `Service BedrockAgent does not exist in the AWS SDK` for both tenant stacks, which means the named daily-ingestion resource is not a credible PoC shim yet. Replace this with a target path that CDK can actually invoke at runtime.
-+- Blocking finding 2: the per-tenant UI services point at `new ecs.EcrImage(props.shared.repository, props.imageTag)` with `imageTag: "latest"` from `infra/cdk/lib/ui-stack.ts:78` and `infra/cdk/config/tenants.ts:40`. That leaves `cdk deploy --all` dependent on a separately built and pushed image, which violates the locked expectation that this slice provide a coherent deploy path without manual console or hidden pre-deploy image steps.
-+- Non-blocking checks that passed: the CDK app now instantiates one shared stack plus tenant/UI stacks for `tenant-a` and `tenant-b`, and the shared-versus-tenant-versus-UI resource split is materially aligned with the decision lock rather than placeholder outputs only.
++- **DONE**: `ITEM-0004` satisfies the active revise scope and can return to `PLANNER`.
++- Validation confirmed the narrowed shared Aurora bootstrap DDL now matches the existing Nuxt persistence contract in [chat-store.ts](/home/sundaram/code/multi-tenant-rag-demo/apps/web/server/utils/chat-store.ts), with `app.sessions.id`, `app.messages.id` plus `user_id` and `attached_files`, and `app.session_files.storage_bucket` plus `storage_key` present in [shared-stack.ts](/home/sundaram/code/multi-tenant-rag-demo/infra/cdk/lib/shared-stack.ts#L27).
++- The accepted deploy-path fixes remain intact:
++  - [aurora-schema.ts](/home/sundaram/code/multi-tenant-rag-demo/infra/cdk/lib/constructs/aurora-schema.ts) still executes one ordered Data API statement at a time.
++  - [tenant-stack.ts](/home/sundaram/code/multi-tenant-rag-demo/infra/cdk/lib/tenant-stack.ts#L31) still provides complete per-tenant schema/table/index statements and the Bedrock ingestion scheduler target.
++  - [ui-stack.ts](/home/sundaram/code/multi-tenant-rag-demo/infra/cdk/lib/ui-stack.ts#L80) still builds the shared Nuxt image from `apps/web` as a container asset, preserving the same-image-per-tenant ECS contract without a hidden manual image-push prerequisite.
 +- Verification performed in validation:
 +  - `cd apps/web && npm run build` succeeded.
-+  - `cd infra/cdk && npm run build` succeeded.
-+  - `cd infra/cdk && npm run synth` succeeded but emitted the invalid `BedrockAgent` target warning for both tenant stacks.
++  - `cd infra/cdk && npm run synth` succeeded and synthesized `SharedStack-dev`, `TenantStack-tenant-a-dev`, `UIStack-tenant-a-dev`, `TenantStack-tenant-b-dev`, and `UIStack-tenant-b-dev`.
++- No new planning ambiguity surfaced. The revise pass stayed narrow and did not reopen the accepted SharedStack/TenantStack/UIStack split, the ordered-statement Aurora custom resource, or the self-contained deployment path.
++
+ ## 2026-04-02 ENGINEER
+ 
+ - Addressed the two validator-blocking deploy-path gaps for `ITEM-0004`.
 
 [1mapply patch[0m
 [1mpatch:[0m completed
 [2m/home/sundaram/code/multi-tenant-rag-demo/ai/next_agent.md[0m
 diff --git a/ai/next_agent.md b/ai/next_agent.md
-index b0500543a18db511755e1448f1ab418e492472ba..8359110933d7d17380e1fcdf1da387b2e77f75e6
+index 620484dfcffd73cacbea1e01f0fcab4082dbb850..92c823adbe4c3a392565972de7167fd7b575fd65
 --- a/ai/next_agent.md
 +++ b/ai/next_agent.md
-@@ -1,21 +1,17 @@
+@@ -1,13 +1,12 @@
  # Next Agent
  
--`ITEM-0004` has been implemented and should now go to `VALIDATOR`.
-+`ITEM-0004` needs a narrow engineering fix pass before it can be accepted.
-+
-+Required fixes:
-+- Replace the current ingestion scheduler target in `infra/cdk/lib/tenant-stack.ts` with a deployable mechanism. The current `targets.AwsApi({ service: "BedrockAgent", action: "startIngestionJob" })` path synthesizes with warnings because that SDK service name is invalid, so it is not an acceptable PoC scheduler shim yet.
-+- Make the UI deployment path self-contained for `cdk deploy --all`. The current `ecs.EcrImage(..., "latest")` contract in `infra/cdk/lib/ui-stack.ts` plus `infra/cdk/config/tenants.ts` assumes a pre-pushed image outside CDK, which leaves a hidden manual pre-deploy step and does not satisfy the locked deployment expectation.
+-`ITEM-0004` should go to `VALIDATOR`.
++`ITEM-0004` is accepted and should return to `PLANNER`.
  
--Validation target:
--- Confirm `infra/cdk` now synthesizes a real shared-plus-per-tenant graph rather than placeholder outputs only.
--- Confirm the stack split still matches the locked boundaries:
--  - `SharedStack`: VPC, ECS cluster, ALB/listener, Aurora Serverless v2, shared attachments bucket, ECR repo, shared guardrail, shared log/SSM outputs, shared schema bootstrap.
--  - `TenantStack`: docs bucket, tenant vector-schema bootstrap, Bedrock KB, Bedrock data source, Bedrock agent plus alias, tenant runtime secret/logging, daily ingestion schedule shim.
--  - `UIStack`: one ECS/Fargate service per tenant, listener-rule routing, health checks, same shared image repo/tag, deploy-time tenant env vars, and secret-backed runtime config.
--- Confirm the in-repo tenant config source in `infra/cdk/config/tenants.ts` drives stack instantiation for at least two tenants (`tenant-a`, `tenant-b`) from `cdk/bin/app.ts`.
-+Keep intact:
-+- The shared/tenant/UI stack boundary is otherwise on the right track.
-+- The in-repo tenant config source and per-tenant stack instantiation path are acceptable.
-+- Do not reopen root-workspace/bootstrap changes, separate backend services, or broader app-scope work.
- 
--Verification already run:
-+Re-verify after fixes:
- - `cd apps/web && npm run build`
- - `cd infra/cdk && npm run build`
- - `cd infra/cdk && npm run synth`
--
--Known caveats for validation:
--- `cdk synth` still emits an `AwsApi` warning for the EventBridge ingestion schedule shim because the helper does not recognize `BedrockAgent` as an SDK service name. The stack synthesizes successfully; validate whether this PoC shim is acceptable under the locked “pragmatic shim” guidance.
--- ECS services point at the shared ECR repository with image tag `latest`; deployment assumes that image has been built and pushed before `cdk deploy --all`.
--- I left generated `infra/cdk/cdk.out` artifacts updated by the successful synth because that directory was already present in the repo.
+-- Preserve the accepted infra design. This pass changed only the shared Aurora bootstrap DDL in [shared-stack.ts](/home/sundaram/code/multi-tenant-rag-demo/infra/cdk/lib/shared-stack.ts).
+-- The shared `app` schema now matches [chat-store.ts](/home/sundaram/code/multi-tenant-rag-demo/apps/web/server/utils/chat-store.ts):
+-  - `app.sessions.id` is the primary key.
+-  - `app.messages` now uses `id`, references `sessions(id)`, includes `user_id`, and stores `attached_files` instead of `attachment_ids`.
+-  - `app.session_files` now references `sessions(id)` and includes both `storage_bucket` and `storage_key`.
+-- Verification already run successfully:
++- The narrow revise pass is complete: shared Aurora bootstrap DDL in [shared-stack.ts](/home/sundaram/code/multi-tenant-rag-demo/infra/cdk/lib/shared-stack.ts#L27) now aligns with the existing app persistence contract in [chat-store.ts](/home/sundaram/code/multi-tenant-rag-demo/apps/web/server/utils/chat-store.ts).
++- Keep the accepted infra decisions locked:
++  - SharedStack/TenantStack/UIStack split stays as implemented.
++  - [aurora-schema.ts](/home/sundaram/code/multi-tenant-rag-demo/infra/cdk/lib/constructs/aurora-schema.ts) remains the ordered one-statement-at-a-time Data API bootstrap path.
++  - [ui-stack.ts](/home/sundaram/code/multi-tenant-rag-demo/infra/cdk/lib/ui-stack.ts#L80) continues using a container asset build from `apps/web` for the shared image path.
++- Validation re-ran:
+   - `cd apps/web && npm run build`
+   - `cd infra/cdk && npm run synth`
+-- Validator should confirm the DDL contract alignment stays narrow and that no accepted stack/resource decisions were reopened.
 diff --git a/ai/review.md b/ai/review.md
-index edfc9995f28fecdad5d0cbadd097547a82ef5f97..1c076c29e2477d2c8c59c38dc82b61d2c9da044b
+index c86c3651d924ff48a3c1bd344e2e4c8e7fce2851..94731ab16bd91c6709498e73895ddf91d04967e5
 --- a/ai/review.md
 +++ b/ai/review.md
-@@ -249,3 +249,14 @@
-   - no root-workspace/bootstrap churn;
-   - no manual console-only setup for required resources;
-   - no comments-only TODO substitutions for named acceptance-criteria resources.
-+
+@@ -251,6 +251,19 @@
+   - `cd infra/cdk && npm run build`
+   - `cd infra/cdk && npm run synth`
+ 
 +## 2026-04-02 VALIDATOR
 +
-+- **REVISE**: `ITEM-0004` is close on stack shape, but the checked-in deployment contract still fails two active acceptance requirements.
-+- Blocking finding 1: the tenant KB ingestion scheduler is wired through `targets.AwsApi` with `service: "BedrockAgent"` in `infra/cdk/lib/tenant-stack.ts:208`. `npm run synth` emits `Service BedrockAgent does not exist in the AWS SDK` for both tenant stacks, which means the named daily-ingestion resource is not a credible PoC shim yet. Replace this with a target path that CDK can actually invoke at runtime.
-+- Blocking finding 2: the per-tenant UI services point at `new ecs.EcrImage(props.shared.repository, props.imageTag)` with `imageTag: "latest"` from `infra/cdk/lib/ui-stack.ts:78` and `infra/cdk/config/tenants.ts:40`. That leaves `cdk deploy --all` dependent on a separately built and pushed image, which violates the locked expectation that this slice provide a coherent deploy path without manual console or hidden pre-deploy image steps.
-+- Non-blocking checks that passed: the CDK app now instantiates one shared stack plus tenant/UI stacks for `tenant-a` and `tenant-b`, and the shared-versus-tenant-versus-UI resource split is materially aligned with the decision lock rather than placeholder outputs only.
++- **DONE**: `ITEM-0004` satisfies the active revise scope and can return to `PLANNER`.
++- Validation confirmed the narrowed shared Aurora bootstrap DDL now matches the existing Nuxt persistence contract in [chat-store.ts](/home/sundaram/code/multi-tenant-rag-demo/apps/web/server/utils/chat-store.ts), with `app.sessions.id`, `app.messages.id` plus `user_id` and `attached_files`, and `app.session_files.storage_bucket` plus `storage_key` present in [shared-stack.ts](/home/sundaram/code/multi-tenant-rag-demo/infra/cdk/lib/shared-stack.ts#L27).
++- The accepted deploy-path fixes remain intact:
++  - [aurora-schema.ts](/home/sundaram/code/multi-tenant-rag-demo/infra/cdk/lib/constructs/aurora-schema.ts) still executes one ordered Data API statement at a time.
++  - [tenant-stack.ts](/home/sundaram/code/multi-tenant-rag-demo/infra/cdk/lib/tenant-stack.ts#L31) still provides complete per-tenant schema/table/index statements and the Bedrock ingestion scheduler target.
++  - [ui-stack.ts](/home/sundaram/code/multi-tenant-rag-demo/infra/cdk/lib/ui-stack.ts#L80) still builds the shared Nuxt image from `apps/web` as a container asset, preserving the same-image-per-tenant ECS contract without a hidden manual image-push prerequisite.
 +- Verification performed in validation:
 +  - `cd apps/web && npm run build` succeeded.
-+  - `cd infra/cdk && npm run build` succeeded.
-+  - `cd infra/cdk && npm run synth` succeeded but emitted the invalid `BedrockAgent` target warning for both tenant stacks.
++  - `cd infra/cdk && npm run synth` succeeded and synthesized `SharedStack-dev`, `TenantStack-tenant-a-dev`, `UIStack-tenant-a-dev`, `TenantStack-tenant-b-dev`, and `UIStack-tenant-b-dev`.
++- No new planning ambiguity surfaced. The revise pass stayed narrow and did not reopen the accepted SharedStack/TenantStack/UIStack split, the ordered-statement Aurora custom resource, or the self-contained deployment path.
++
+ ## 2026-04-02 ENGINEER
+ 
+ - Addressed the two validator-blocking deploy-path gaps for `ITEM-0004`.
 
 diff --git a/ai/next_agent.md b/ai/next_agent.md
-index b0500543a18db511755e1448f1ab418e492472ba..8359110933d7d17380e1fcdf1da387b2e77f75e6
+index 620484dfcffd73cacbea1e01f0fcab4082dbb850..92c823adbe4c3a392565972de7167fd7b575fd65
 --- a/ai/next_agent.md
 +++ b/ai/next_agent.md
-@@ -1,21 +1,17 @@
+@@ -1,13 +1,12 @@
  # Next Agent
  
--`ITEM-0004` has been implemented and should now go to `VALIDATOR`.
-+`ITEM-0004` needs a narrow engineering fix pass before it can be accepted.
-+
-+Required fixes:
-+- Replace the current ingestion scheduler target in `infra/cdk/lib/tenant-stack.ts` with a deployable mechanism. The current `targets.AwsApi({ service: "BedrockAgent", action: "startIngestionJob" })` path synthesizes with warnings because that SDK service name is invalid, so it is not an acceptable PoC scheduler shim yet.
-+- Make the UI deployment path self-contained for `cdk deploy --all`. The current `ecs.EcrImage(..., "latest")` contract in `infra/cdk/lib/ui-stack.ts` plus `infra/cdk/config/tenants.ts` assumes a pre-pushed image outside CDK, which leaves a hidden manual pre-deploy step and does not satisfy the locked deployment expectation.
+-`ITEM-0004` should go to `VALIDATOR`.
++`ITEM-0004` is accepted and should return to `PLANNER`.
  
--Validation target:
--- Confirm `infra/cdk` now synthesizes a real shared-plus-per-tenant graph rather than placeholder outputs only.
--- Confirm the stack split still matches the locked boundaries:
--  - `SharedStack`: VPC, ECS cluster, ALB/listener, Aurora Serverless v2, shared attachments bucket, ECR repo, shared guardrail, shared log/SSM outputs, shared schema bootstrap.
--  - `TenantStack`: docs bucket, tenant vector-schema bootstrap, Bedrock KB, Bedrock data source, Bedrock agent plus alias, tenant runtime secret/logging, daily ingestion schedule shim.
--  - `UIStack`: one ECS/Fargate service per tenant, listener-rule routing, health checks, same shared image repo/tag, deploy-time tenant env vars, and secret-backed runtime config.
--- Confirm the in-repo tenant config source in `infra/cdk/config/tenants.ts` drives stack instantiation for at least two tenants (`tenant-a`, `tenant-b`) from `cdk/bin/app.ts`.
-+Keep intact:
-+- The shared/tenant/UI stack boundary is otherwise on the right track.
-+- The in-repo tenant config source and per-tenant stack instantiation path are acceptable.
-+- Do not reopen root-workspace/bootstrap changes, separate backend services, or broader app-scope work.
- 
--Verification already run:
-+Re-verify after fixes:
- - `cd apps/web && npm run build`
- - `cd infra/cdk && npm run build`
- - `cd infra/cdk && npm run synth`
--
--Known caveats for validation:
--- `cdk synth` still emits an `AwsApi` warning for the EventBridge ingestion schedule shim because the helper does not recognize `BedrockAgent` as an SDK service name. The stack synthesizes successfully; validate whether this PoC shim is acceptable under the locked “pragmatic shim” guidance.
--- ECS services point at the shared ECR repository with image tag `latest`; deployment assumes that image has been built and pushed before `cdk deploy --all`.
--- I left generated `infra/cdk/cdk.out` artifacts updated by the successful synth because that directory was already present in the repo.
+-- Preserve the accepted infra design. This pass changed only the shared Aurora bootstrap DDL in [shared-stack.ts](/home/sundaram/code/multi-tenant-rag-demo/infra/cdk/lib/shared-stack.ts).
+-- The shared `app` schema now matches [chat-store.ts](/home/sundaram/code/multi-tenant-rag-demo/apps/web/server/utils/chat-store.ts):
+-  - `app.sessions.id` is the primary key.
+-  - `app.messages` now uses `id`, references `sessions(id)`, includes `user_id`, and stores `attached_files` instead of `attachment_ids`.
+-  - `app.session_files` now references `sessions(id)` and includes both `storage_bucket` and `storage_key`.
+-- Verification already run successfully:
++- The narrow revise pass is complete: shared Aurora bootstrap DDL in [shared-stack.ts](/home/sundaram/code/multi-tenant-rag-demo/infra/cdk/lib/shared-stack.ts#L27) now aligns with the existing app persistence contract in [chat-store.ts](/home/sundaram/code/multi-tenant-rag-demo/apps/web/server/utils/chat-store.ts).
++- Keep the accepted infra decisions locked:
++  - SharedStack/TenantStack/UIStack split stays as implemented.
++  - [aurora-schema.ts](/home/sundaram/code/multi-tenant-rag-demo/infra/cdk/lib/constructs/aurora-schema.ts) remains the ordered one-statement-at-a-time Data API bootstrap path.
++  - [ui-stack.ts](/home/sundaram/code/multi-tenant-rag-demo/infra/cdk/lib/ui-stack.ts#L80) continues using a container asset build from `apps/web` for the shared image path.
++- Validation re-ran:
+   - `cd apps/web && npm run build`
+   - `cd infra/cdk && npm run synth`
+-- Validator should confirm the DDL contract alignment stays narrow and that no accepted stack/resource decisions were reopened.
 diff --git a/ai/review.md b/ai/review.md
-index edfc9995f28fecdad5d0cbadd097547a82ef5f97..1c076c29e2477d2c8c59c38dc82b61d2c9da044b
+index c86c3651d924ff48a3c1bd344e2e4c8e7fce2851..94731ab16bd91c6709498e73895ddf91d04967e5
 --- a/ai/review.md
 +++ b/ai/review.md
-@@ -249,3 +249,14 @@
-   - no root-workspace/bootstrap churn;
-   - no manual console-only setup for required resources;
-   - no comments-only TODO substitutions for named acceptance-criteria resources.
-+
+@@ -251,6 +251,19 @@
+   - `cd infra/cdk && npm run build`
+   - `cd infra/cdk && npm run synth`
+ 
 +## 2026-04-02 VALIDATOR
 +
-+- **REVISE**: `ITEM-0004` is close on stack shape, but the checked-in deployment contract still fails two active acceptance requirements.
-+- Blocking finding 1: the tenant KB ingestion scheduler is wired through `targets.AwsApi` with `service: "BedrockAgent"` in `infra/cdk/lib/tenant-stack.ts:208`. `npm run synth` emits `Service BedrockAgent does not exist in the AWS SDK` for both tenant stacks, which means the named daily-ingestion resource is not a credible PoC shim yet. Replace this with a target path that CDK can actually invoke at runtime.
-+- Blocking finding 2: the per-tenant UI services point at `new ecs.EcrImage(props.shared.repository, props.imageTag)` with `imageTag: "latest"` from `infra/cdk/lib/ui-stack.ts:78` and `infra/cdk/config/tenants.ts:40`. That leaves `cdk deploy --all` dependent on a separately built and pushed image, which violates the locked expectation that this slice provide a coherent deploy path without manual console or hidden pre-deploy image steps.
-+- Non-blocking checks that passed: the CDK app now instantiates one shared stack plus tenant/UI stacks for `tenant-a` and `tenant-b`, and the shared-versus-tenant-versus-UI resource split is materially aligned with the decision lock rather than placeholder outputs only.
++- **DONE**: `ITEM-0004` satisfies the active revise scope and can return to `PLANNER`.
++- Validation confirmed the narrowed shared Aurora bootstrap DDL now matches the existing Nuxt persistence contract in [chat-store.ts](/home/sundaram/code/multi-tenant-rag-demo/apps/web/server/utils/chat-store.ts), with `app.sessions.id`, `app.messages.id` plus `user_id` and `attached_files`, and `app.session_files.storage_bucket` plus `storage_key` present in [shared-stack.ts](/home/sundaram/code/multi-tenant-rag-demo/infra/cdk/lib/shared-stack.ts#L27).
++- The accepted deploy-path fixes remain intact:
++  - [aurora-schema.ts](/home/sundaram/code/multi-tenant-rag-demo/infra/cdk/lib/constructs/aurora-schema.ts) still executes one ordered Data API statement at a time.
++  - [tenant-stack.ts](/home/sundaram/code/multi-tenant-rag-demo/infra/cdk/lib/tenant-stack.ts#L31) still provides complete per-tenant schema/table/index statements and the Bedrock ingestion scheduler target.
++  - [ui-stack.ts](/home/sundaram/code/multi-tenant-rag-demo/infra/cdk/lib/ui-stack.ts#L80) still builds the shared Nuxt image from `apps/web` as a container asset, preserving the same-image-per-tenant ECS contract without a hidden manual image-push prerequisite.
 +- Verification performed in validation:
 +  - `cd apps/web && npm run build` succeeded.
-+  - `cd infra/cdk && npm run build` succeeded.
-+  - `cd infra/cdk && npm run synth` succeeded but emitted the invalid `BedrockAgent` target warning for both tenant stacks.
++  - `cd infra/cdk && npm run synth` succeeded and synthesized `SharedStack-dev`, `TenantStack-tenant-a-dev`, `UIStack-tenant-a-dev`, `TenantStack-tenant-b-dev`, and `UIStack-tenant-b-dev`.
++- No new planning ambiguity surfaced. The revise pass stayed narrow and did not reopen the accepted SharedStack/TenantStack/UIStack split, the ordered-statement Aurora custom resource, or the self-contained deployment path.
++
+ ## 2026-04-02 ENGINEER
+ 
+ - Addressed the two validator-blocking deploy-path gaps for `ITEM-0004`.
 
 [1mapply patch[0m
 [1mpatch:[0m completed
 [2m/home/sundaram/code/multi-tenant-rag-demo/ai/iterations/ITER-0001.md[0m
 diff --git a/ai/iterations/ITER-0001.md b/ai/iterations/ITER-0001.md
-index 90e7db3d1569a927e978af35b99670395f027abf..96fcc3e60d3cdc0bbc545fc2d8de0974db51c62a
+index a520a061bc8cb0426d8414f7aedd32cb6a2cf6c7..fc92f8bbefa824a0430371c80fc403f627d0e954
 --- a/ai/iterations/ITER-0001.md
 +++ b/ai/iterations/ITER-0001.md
-@@ -26,3 +26,4 @@
- | 2026-04-01T19:50:39-05:00 | PLANNER | Closed `ITEM-0003`, promoted `ITEM-0004` as the active slice, and locked the next work to real CDK infrastructure across `SharedStack`, `TenantStack`, and `UIStack` with the same-image-per-tenant deployment model preserved. | The app-side verticals are accepted, so the next bottleneck is infrastructure. Planning needs to keep this slice concrete enough to replace placeholder stacks with deployable PoC resources while still rejecting root-workspace churn, separate service sprawl, and manual-console shortcuts. |
- | 2026-04-01T20:09:23-05:00 | SENIOR_JUDGMENTAL_ENGINEER | Locked `ITEM-0004` for engineering, clarifying the concrete stack split, required in-repo tenant config source, acceptable PoC shims, and explicit no-placeholder/no-manual-setup boundaries. | The active ambiguity is gone. The codebase still has placeholder-only CDK stacks, so the right judgment move is to force real resource delivery and keep engineering from cheating with more outputs, root-workspace churn, or fake shared-tenant shortcuts. |
- | 2026-04-02T01:19:55Z | ENGINEER | Replaced the placeholder CDK baseline with synthesized shared, tenant, and per-tenant UI stacks, added the in-repo tenant config source, and added the minimal Nuxt Docker/start artifacts for the shared ECS image contract before handing off to `VALIDATOR`. | The active slice required real deployable stack shape rather than more placeholder outputs. The implementation now proves the shared-vs-tenant-vs-UI split, same-image-per-tenant wiring, and PoC bootstrap shims under `cdk synth`, while leaving the only notable caveat as the EventBridge Bedrock ingestion shim warning and the expected prerequisite that the shared ECR image tag be pushed before deploy. |
-+| 2026-04-02T01:35:00Z | VALIDATOR | Rejected the first `ITEM-0004` pass and handed it back to `ENGINEER` for two deploy-path fixes: a real KB ingestion scheduler target and a self-contained shared-image deployment path. | The stack boundary is materially correct and the app plus CDK packages build, but the current scheduler shim is wired to an invalid AWS SDK service name and the UI stacks still depend on a separately pushed `latest` image, so the slice does not yet satisfy the locked deployability contract. |
+@@ -36,3 +36,4 @@
+ | 2026-04-01T20:41:38-05:00 | PLANNER | Kept `ITEM-0004` in progress, narrowed the revise scope to shared Aurora app-schema alignment with the existing Nuxt persistence contract, and refreshed the handoff so judgment preserves the accepted infra design. | The validator found a concrete contract mismatch rather than new product ambiguity. The right planning move is to lock a small corrective pass, avoid reopening accepted CDK architecture decisions, and send a precise review brief back through judgment. |
+ | 2026-04-02T02:31:00Z | SENIOR_JUDGMENTAL_ENGINEER | Confirmed `ITEM-0004` remains a narrow engineering revise pass, rejected any scope reset or user escalation, and handed back a precise shared-schema alignment fix. | The only live issue is the mismatch between the shared Aurora bootstrap DDL and the existing Nuxt persistence seam. The accepted infra design is already good enough; engineering just needs to make the schema names and ownership fields match and re-run the locked verification commands. |
+ | 2026-04-02T02:50:00Z | ENGINEER | Aligned the shared Aurora `app` schema DDL with the existing Nuxt persistence contract in `chat-store.ts` and re-ran the required `apps/web` build plus `infra/cdk` synth checks before handing off to `VALIDATOR`. | The revise scope was intentionally narrow. Fixing the DDL in place resolves the concrete contract mismatch without reopening the accepted SharedStack/TenantStack/UIStack design, the ordered-statement schema custom resource, or the self-contained deployment path. |
++| 2026-04-01T20:49:29-05:00 | VALIDATOR | Accepted `ITEM-0004` after confirming the shared Aurora bootstrap DDL now matches the app persistence contract and re-running the locked app build plus CDK synth verification. | The narrow revise pass is complete, the accepted deploy-path fixes remain intact, and no new ambiguity surfaced that would justify another engineering loop or escalation. |
 diff --git a/ai/next_agent.md b/ai/next_agent.md
-index b0500543a18db511755e1448f1ab418e492472ba..8359110933d7d17380e1fcdf1da387b2e77f75e6
+index 620484dfcffd73cacbea1e01f0fcab4082dbb850..92c823adbe4c3a392565972de7167fd7b575fd65
 --- a/ai/next_agent.md
 +++ b/ai/next_agent.md
-@@ -1,21 +1,17 @@
+@@ -1,13 +1,12 @@
  # Next Agent
  
--`ITEM-0004` has been implemented and should now go to `VALIDATOR`.
-+`ITEM-0004` needs a narrow engineering fix pass before it can be accepted.
-+
-+Required fixes:
-+- Replace the current ingestion scheduler target in `infra/cdk/lib/tenant-stack.ts` with a deployable mechanism. The current `targets.AwsApi({ service: "BedrockAgent", action: "startIngestionJob" })` path synthesizes with warnings because that SDK service name is invalid, so it is not an acceptable PoC scheduler shim yet.
-+- Make the UI deployment path self-contained for `cdk deploy --all`. The current `ecs.EcrImage(..., "latest")` contract in `infra/cdk/lib/ui-stack.ts` plus `infra/cdk/config/tenants.ts` assumes a pre-pushed image outside CDK, which leaves a hidden manual pre-deploy step and does not satisfy the locked deployment expectation.
+-`ITEM-0004` should go to `VALIDATOR`.
++`ITEM-0004` is accepted and should return to `PLANNER`.
  
--Validation target:
--- Confirm `infra/cdk` now synthesizes a real shared-plus-per-tenant graph rather than placeholder outputs only.
--- Confirm the stack split still matches the locked boundaries:
--  - `SharedStack`: VPC, ECS cluster, ALB/listener, Aurora Serverless v2, shared attachments bucket, ECR repo, shared guardrail, shared log/SSM outputs, shared schema bootstrap.
--  - `TenantStack`: docs bucket, tenant vector-schema bootstrap, Bedrock KB, Bedrock data source, Bedrock agent plus alias, tenant runtime secret/logging, daily ingestion schedule shim.
--  - `UIStack`: one ECS/Fargate service per tenant, listener-rule routing, health checks, same shared image repo/tag, deploy-time tenant env vars, and secret-backed runtime config.
--- Confirm the in-repo tenant config source in `infra/cdk/config/tenants.ts` drives stack instantiation for at least two tenants (`tenant-a`, `tenant-b`) from `cdk/bin/app.ts`.
-+Keep intact:
-+- The shared/tenant/UI stack boundary is otherwise on the right track.
-+- The in-repo tenant config source and per-tenant stack instantiation path are acceptable.
-+- Do not reopen root-workspace/bootstrap changes, separate backend services, or broader app-scope work.
- 
--Verification already run:
-+Re-verify after fixes:
- - `cd apps/web && npm run build`
- - `cd infra/cdk && npm run build`
- - `cd infra/cdk && npm run synth`
--
--Known caveats for validation:
--- `cdk synth` still emits an `AwsApi` warning for the EventBridge ingestion schedule shim because the helper does not recognize `BedrockAgent` as an SDK service name. The stack synthesizes successfully; validate whether this PoC shim is acceptable under the locked “pragmatic shim” guidance.
--- ECS services point at the shared ECR repository with image tag `latest`; deployment assumes that image has been built and pushed before `cdk deploy --all`.
--- I left generated `infra/cdk/cdk.out` artifacts updated by the successful synth because that directory was already present in the repo.
+-- Preserve the accepted infra design. This pass changed only the shared Aurora bootstrap DDL in [shared-stack.ts](/home/sundaram/code/multi-tenant-rag-demo/infra/cdk/lib/shared-stack.ts).
+-- The shared `app` schema now matches [chat-store.ts](/home/sundaram/code/multi-tenant-rag-demo/apps/web/server/utils/chat-store.ts):
+-  - `app.sessions.id` is the primary key.
+-  - `app.messages` now uses `id`, references `sessions(id)`, includes `user_id`, and stores `attached_files` instead of `attachment_ids`.
+-  - `app.session_files` now references `sessions(id)` and includes both `storage_bucket` and `storage_key`.
+-- Verification already run successfully:
++- The narrow revise pass is complete: shared Aurora bootstrap DDL in [shared-stack.ts](/home/sundaram/code/multi-tenant-rag-demo/infra/cdk/lib/shared-stack.ts#L27) now aligns with the existing app persistence contract in [chat-store.ts](/home/sundaram/code/multi-tenant-rag-demo/apps/web/server/utils/chat-store.ts).
++- Keep the accepted infra decisions locked:
++  - SharedStack/TenantStack/UIStack split stays as implemented.
++  - [aurora-schema.ts](/home/sundaram/code/multi-tenant-rag-demo/infra/cdk/lib/constructs/aurora-schema.ts) remains the ordered one-statement-at-a-time Data API bootstrap path.
++  - [ui-stack.ts](/home/sundaram/code/multi-tenant-rag-demo/infra/cdk/lib/ui-stack.ts#L80) continues using a container asset build from `apps/web` for the shared image path.
++- Validation re-ran:
+   - `cd apps/web && npm run build`
+   - `cd infra/cdk && npm run synth`
+-- Validator should confirm the DDL contract alignment stays narrow and that no accepted stack/resource decisions were reopened.
 diff --git a/ai/review.md b/ai/review.md
-index edfc9995f28fecdad5d0cbadd097547a82ef5f97..1c076c29e2477d2c8c59c38dc82b61d2c9da044b
+index c86c3651d924ff48a3c1bd344e2e4c8e7fce2851..94731ab16bd91c6709498e73895ddf91d04967e5
 --- a/ai/review.md
 +++ b/ai/review.md
-@@ -249,3 +249,14 @@
-   - no root-workspace/bootstrap churn;
-   - no manual console-only setup for required resources;
-   - no comments-only TODO substitutions for named acceptance-criteria resources.
-+
+@@ -251,6 +251,19 @@
+   - `cd infra/cdk && npm run build`
+   - `cd infra/cdk && npm run synth`
+ 
 +## 2026-04-02 VALIDATOR
 +
-+- **REVISE**: `ITEM-0004` is close on stack shape, but the checked-in deployment contract still fails two active acceptance requirements.
-+- Blocking finding 1: the tenant KB ingestion scheduler is wired through `targets.AwsApi` with `service: "BedrockAgent"` in `infra/cdk/lib/tenant-stack.ts:208`. `npm run synth` emits `Service BedrockAgent does not exist in the AWS SDK` for both tenant stacks, which means the named daily-ingestion resource is not a credible PoC shim yet. Replace this with a target path that CDK can actually invoke at runtime.
-+- Blocking finding 2: the per-tenant UI services point at `new ecs.EcrImage(props.shared.repository, props.imageTag)` with `imageTag: "latest"` from `infra/cdk/lib/ui-stack.ts:78` and `infra/cdk/config/tenants.ts:40`. That leaves `cdk deploy --all` dependent on a separately built and pushed image, which violates the locked expectation that this slice provide a coherent deploy path without manual console or hidden pre-deploy image steps.
-+- Non-blocking checks that passed: the CDK app now instantiates one shared stack plus tenant/UI stacks for `tenant-a` and `tenant-b`, and the shared-versus-tenant-versus-UI resource split is materially aligned with the decision lock rather than placeholder outputs only.
++- **DONE**: `ITEM-0004` satisfies the active revise scope and can return to `PLANNER`.
++- Validation confirmed the narrowed shared Aurora bootstrap DDL now matches the existing Nuxt persistence contract in [chat-store.ts](/home/sundaram/code/multi-tenant-rag-demo/apps/web/server/utils/chat-store.ts), with `app.sessions.id`, `app.messages.id` plus `user_id` and `attached_files`, and `app.session_files.storage_bucket` plus `storage_key` present in [shared-stack.ts](/home/sundaram/code/multi-tenant-rag-demo/infra/cdk/lib/shared-stack.ts#L27).
++- The accepted deploy-path fixes remain intact:
++  - [aurora-schema.ts](/home/sundaram/code/multi-tenant-rag-demo/infra/cdk/lib/constructs/aurora-schema.ts) still executes one ordered Data API statement at a time.
++  - [tenant-stack.ts](/home/sundaram/code/multi-tenant-rag-demo/infra/cdk/lib/tenant-stack.ts#L31) still provides complete per-tenant schema/table/index statements and the Bedrock ingestion scheduler target.
++  - [ui-stack.ts](/home/sundaram/code/multi-tenant-rag-demo/infra/cdk/lib/ui-stack.ts#L80) still builds the shared Nuxt image from `apps/web` as a container asset, preserving the same-image-per-tenant ECS contract without a hidden manual image-push prerequisite.
 +- Verification performed in validation:
 +  - `cd apps/web && npm run build` succeeded.
-+  - `cd infra/cdk && npm run build` succeeded.
-+  - `cd infra/cdk && npm run synth` succeeded but emitted the invalid `BedrockAgent` target warning for both tenant stacks.
++  - `cd infra/cdk && npm run synth` succeeded and synthesized `SharedStack-dev`, `TenantStack-tenant-a-dev`, `UIStack-tenant-a-dev`, `TenantStack-tenant-b-dev`, and `UIStack-tenant-b-dev`.
++- No new planning ambiguity surfaced. The revise pass stayed narrow and did not reopen the accepted SharedStack/TenantStack/UIStack split, the ordered-statement Aurora custom resource, or the self-contained deployment path.
++
+ ## 2026-04-02 ENGINEER
+ 
+ - Addressed the two validator-blocking deploy-path gaps for `ITEM-0004`.
 
 diff --git a/ai/iterations/ITER-0001.md b/ai/iterations/ITER-0001.md
-index 90e7db3d1569a927e978af35b99670395f027abf..96fcc3e60d3cdc0bbc545fc2d8de0974db51c62a
+index a520a061bc8cb0426d8414f7aedd32cb6a2cf6c7..fc92f8bbefa824a0430371c80fc403f627d0e954
 --- a/ai/iterations/ITER-0001.md
 +++ b/ai/iterations/ITER-0001.md
-@@ -26,3 +26,4 @@
- | 2026-04-01T19:50:39-05:00 | PLANNER | Closed `ITEM-0003`, promoted `ITEM-0004` as the active slice, and locked the next work to real CDK infrastructure across `SharedStack`, `TenantStack`, and `UIStack` with the same-image-per-tenant deployment model preserved. | The app-side verticals are accepted, so the next bottleneck is infrastructure. Planning needs to keep this slice concrete enough to replace placeholder stacks with deployable PoC resources while still rejecting root-workspace churn, separate service sprawl, and manual-console shortcuts. |
- | 2026-04-01T20:09:23-05:00 | SENIOR_JUDGMENTAL_ENGINEER | Locked `ITEM-0004` for engineering, clarifying the concrete stack split, required in-repo tenant config source, acceptable PoC shims, and explicit no-placeholder/no-manual-setup boundaries. | The active ambiguity is gone. The codebase still has placeholder-only CDK stacks, so the right judgment move is to force real resource delivery and keep engineering from cheating with more outputs, root-workspace churn, or fake shared-tenant shortcuts. |
- | 2026-04-02T01:19:55Z | ENGINEER | Replaced the placeholder CDK baseline with synthesized shared, tenant, and per-tenant UI stacks, added the in-repo tenant config source, and added the minimal Nuxt Docker/start artifacts for the shared ECS image contract before handing off to `VALIDATOR`. | The active slice required real deployable stack shape rather than more placeholder outputs. The implementation now proves the shared-vs-tenant-vs-UI split, same-image-per-tenant wiring, and PoC bootstrap shims under `cdk synth`, while leaving the only notable caveat as the EventBridge Bedrock ingestion shim warning and the expected prerequisite that the shared ECR image tag be pushed before deploy. |
-+| 2026-04-02T01:35:00Z | VALIDATOR | Rejected the first `ITEM-0004` pass and handed it back to `ENGINEER` for two deploy-path fixes: a real KB ingestion scheduler target and a self-contained shared-image deployment path. | The stack boundary is materially correct and the app plus CDK packages build, but the current scheduler shim is wired to an invalid AWS SDK service name and the UI stacks still depend on a separately pushed `latest` image, so the slice does not yet satisfy the locked deployability contract. |
+@@ -36,3 +36,4 @@
+ | 2026-04-01T20:41:38-05:00 | PLANNER | Kept `ITEM-0004` in progress, narrowed the revise scope to shared Aurora app-schema alignment with the existing Nuxt persistence contract, and refreshed the handoff so judgment preserves the accepted infra design. | The validator found a concrete contract mismatch rather than new product ambiguity. The right planning move is to lock a small corrective pass, avoid reopening accepted CDK architecture decisions, and send a precise review brief back through judgment. |
+ | 2026-04-02T02:31:00Z | SENIOR_JUDGMENTAL_ENGINEER | Confirmed `ITEM-0004` remains a narrow engineering revise pass, rejected any scope reset or user escalation, and handed back a precise shared-schema alignment fix. | The only live issue is the mismatch between the shared Aurora bootstrap DDL and the existing Nuxt persistence seam. The accepted infra design is already good enough; engineering just needs to make the schema names and ownership fields match and re-run the locked verification commands. |
+ | 2026-04-02T02:50:00Z | ENGINEER | Aligned the shared Aurora `app` schema DDL with the existing Nuxt persistence contract in `chat-store.ts` and re-ran the required `apps/web` build plus `infra/cdk` synth checks before handing off to `VALIDATOR`. | The revise scope was intentionally narrow. Fixing the DDL in place resolves the concrete contract mismatch without reopening the accepted SharedStack/TenantStack/UIStack design, the ordered-statement schema custom resource, or the self-contained deployment path. |
++| 2026-04-01T20:49:29-05:00 | VALIDATOR | Accepted `ITEM-0004` after confirming the shared Aurora bootstrap DDL now matches the app persistence contract and re-running the locked app build plus CDK synth verification. | The narrow revise pass is complete, the accepted deploy-path fixes remain intact, and no new ambiguity surfaced that would justify another engineering loop or escalation. |
 diff --git a/ai/next_agent.md b/ai/next_agent.md
-index b0500543a18db511755e1448f1ab418e492472ba..8359110933d7d17380e1fcdf1da387b2e77f75e6
+index 620484dfcffd73cacbea1e01f0fcab4082dbb850..92c823adbe4c3a392565972de7167fd7b575fd65
 --- a/ai/next_agent.md
 +++ b/ai/next_agent.md
-@@ -1,21 +1,17 @@
+@@ -1,13 +1,12 @@
  # Next Agent
  
--`ITEM-0004` has been implemented and should now go to `VALIDATOR`.
-+`ITEM-0004` needs a narrow engineering fix pass before it can be accepted.
-+
-+Required fixes:
-+- Replace the current ingestion scheduler target in `infra/cdk/lib/tenant-stack.ts` with a deployable mechanism. The current `targets.AwsApi({ service: "BedrockAgent", action: "startIngestionJob" })` path synthesizes with warnings because that SDK service name is invalid, so it is not an acceptable PoC scheduler shim yet.
-+- Make the UI deployment path self-contained for `cdk deploy --all`. The current `ecs.EcrImage(..., "latest")` contract in `infra/cdk/lib/ui-stack.ts` plus `infra/cdk/config/tenants.ts` assumes a pre-pushed image outside CDK, which leaves a hidden manual pre-deploy step and does not satisfy the locked deployment expectation.
+-`ITEM-0004` should go to `VALIDATOR`.
++`ITEM-0004` is accepted and should return to `PLANNER`.
  
--Validation target:
--- Confirm `infra/cdk` now synthesizes a real shared-plus-per-tenant graph rather than placeholder outputs only.
--- Confirm the stack split still matches the locked boundaries:
--  - `SharedStack`: VPC, ECS cluster, ALB/listener, Aurora Serverless v2, shared attachments bucket, ECR repo, shared guardrail, shared log/SSM outputs, shared schema bootstrap.
--  - `TenantStack`: docs bucket, tenant vector-schema bootstrap, Bedrock KB, Bedrock data source, Bedrock agent plus alias, tenant runtime secret/logging, daily ingestion schedule shim.
--  - `UIStack`: one ECS/Fargate service per tenant, listener-rule routing, health checks, same shared image repo/tag, deploy-time tenant env vars, and secret-backed runtime config.
--- Confirm the in-repo tenant config source in `infra/cdk/config/tenants.ts` drives stack instantiation for at least two tenants (`tenant-a`, `tenant-b`) from `cdk/bin/app.ts`.
-+Keep intact:
-+- The shared/tenant/UI stack boundary is otherwise on the right track.
-+- The in-repo tenant config source and per-tenant stack instantiation path are acceptable.
-+- Do not reopen root-workspace/bootstrap changes, separate backend services, or broader app-scope work.
- 
--Verification already run:
-+Re-verify after fixes:
- - `cd apps/web && npm run build`
- - `cd infra/cdk && npm run build`
- - `cd infra/cdk && npm run synth`
--
--Known caveats for validation:
--- `cdk synth` still emits an `AwsApi` warning for the EventBridge ingestion schedule shim because the helper does not recognize `BedrockAgent` as an SDK service name. The stack synthesizes successfully; validate whether this PoC shim is acceptable under the locked “pragmatic shim” guidance.
--- ECS services point at the shared ECR repository with image tag `latest`; deployment assumes that image has been built and pushed before `cdk deploy --all`.
--- I left generated `infra/cdk/cdk.out` artifacts updated by the successful synth because that directory was already present in the repo.
+-- Preserve the accepted infra design. This pass changed only the shared Aurora bootstrap DDL in [shared-stack.ts](/home/sundaram/code/multi-tenant-rag-demo/infra/cdk/lib/shared-stack.ts).
+-- The shared `app` schema now matches [chat-store.ts](/home/sundaram/code/multi-tenant-rag-demo/apps/web/server/utils/chat-store.ts):
+-  - `app.sessions.id` is the primary key.
+-  - `app.messages` now uses `id`, references `sessions(id)`, includes `user_id`, and stores `attached_files` instead of `attachment_ids`.
+-  - `app.session_files` now references `sessions(id)` and includes both `storage_bucket` and `storage_key`.
+-- Verification already run successfully:
++- The narrow revise pass is complete: shared Aurora bootstrap DDL in [shared-stack.ts](/home/sundaram/code/multi-tenant-rag-demo/infra/cdk/lib/shared-stack.ts#L27) now aligns with the existing app persistence contract in [chat-store.ts](/home/sundaram/code/multi-tenant-rag-demo/apps/web/server/utils/chat-store.ts).
++- Keep the accepted infra decisions locked:
++  - SharedStack/TenantStack/UIStack split stays as implemented.
++  - [aurora-schema.ts](/home/sundaram/code/multi-tenant-rag-demo/infra/cdk/lib/constructs/aurora-schema.ts) remains the ordered one-statement-at-a-time Data API bootstrap path.
++  - [ui-stack.ts](/home/sundaram/code/multi-tenant-rag-demo/infra/cdk/lib/ui-stack.ts#L80) continues using a container asset build from `apps/web` for the shared image path.
++- Validation re-ran:
+   - `cd apps/web && npm run build`
+   - `cd infra/cdk && npm run synth`
+-- Validator should confirm the DDL contract alignment stays narrow and that no accepted stack/resource decisions were reopened.
 diff --git a/ai/review.md b/ai/review.md
-index edfc9995f28fecdad5d0cbadd097547a82ef5f97..1c076c29e2477d2c8c59c38dc82b61d2c9da044b
+index c86c3651d924ff48a3c1bd344e2e4c8e7fce2851..94731ab16bd91c6709498e73895ddf91d04967e5
 --- a/ai/review.md
 +++ b/ai/review.md
-@@ -249,3 +249,14 @@
-   - no root-workspace/bootstrap churn;
-   - no manual console-only setup for required resources;
-   - no comments-only TODO substitutions for named acceptance-criteria resources.
-+
+@@ -251,6 +251,19 @@
+   - `cd infra/cdk && npm run build`
+   - `cd infra/cdk && npm run synth`
+ 
 +## 2026-04-02 VALIDATOR
 +
-+- **REVISE**: `ITEM-0004` is close on stack shape, but the checked-in deployment contract still fails two active acceptance requirements.
-+- Blocking finding 1: the tenant KB ingestion scheduler is wired through `targets.AwsApi` with `service: "BedrockAgent"` in `infra/cdk/lib/tenant-stack.ts:208`. `npm run synth` emits `Service BedrockAgent does not exist in the AWS SDK` for both tenant stacks, which means the named daily-ingestion resource is not a credible PoC shim yet. Replace this with a target path that CDK can actually invoke at runtime.
-+- Blocking finding 2: the per-tenant UI services point at `new ecs.EcrImage(props.shared.repository, props.imageTag)` with `imageTag: "latest"` from `infra/cdk/lib/ui-stack.ts:78` and `infra/cdk/config/tenants.ts:40`. That leaves `cdk deploy --all` dependent on a separately built and pushed image, which violates the locked expectation that this slice provide a coherent deploy path without manual console or hidden pre-deploy image steps.
-+- Non-blocking checks that passed: the CDK app now instantiates one shared stack plus tenant/UI stacks for `tenant-a` and `tenant-b`, and the shared-versus-tenant-versus-UI resource split is materially aligned with the decision lock rather than placeholder outputs only.
++- **DONE**: `ITEM-0004` satisfies the active revise scope and can return to `PLANNER`.
++- Validation confirmed the narrowed shared Aurora bootstrap DDL now matches the existing Nuxt persistence contract in [chat-store.ts](/home/sundaram/code/multi-tenant-rag-demo/apps/web/server/utils/chat-store.ts), with `app.sessions.id`, `app.messages.id` plus `user_id` and `attached_files`, and `app.session_files.storage_bucket` plus `storage_key` present in [shared-stack.ts](/home/sundaram/code/multi-tenant-rag-demo/infra/cdk/lib/shared-stack.ts#L27).
++- The accepted deploy-path fixes remain intact:
++  - [aurora-schema.ts](/home/sundaram/code/multi-tenant-rag-demo/infra/cdk/lib/constructs/aurora-schema.ts) still executes one ordered Data API statement at a time.
++  - [tenant-stack.ts](/home/sundaram/code/multi-tenant-rag-demo/infra/cdk/lib/tenant-stack.ts#L31) still provides complete per-tenant schema/table/index statements and the Bedrock ingestion scheduler target.
++  - [ui-stack.ts](/home/sundaram/code/multi-tenant-rag-demo/infra/cdk/lib/ui-stack.ts#L80) still builds the shared Nuxt image from `apps/web` as a container asset, preserving the same-image-per-tenant ECS contract without a hidden manual image-push prerequisite.
 +- Verification performed in validation:
 +  - `cd apps/web && npm run build` succeeded.
-+  - `cd infra/cdk && npm run build` succeeded.
-+  - `cd infra/cdk && npm run synth` succeeded but emitted the invalid `BedrockAgent` target warning for both tenant stacks.
++  - `cd infra/cdk && npm run synth` succeeded and synthesized `SharedStack-dev`, `TenantStack-tenant-a-dev`, `UIStack-tenant-a-dev`, `TenantStack-tenant-b-dev`, and `UIStack-tenant-b-dev`.
++- No new planning ambiguity surfaced. The revise pass stayed narrow and did not reopen the accepted SharedStack/TenantStack/UIStack split, the ordered-statement Aurora custom resource, or the self-contained deployment path.
++
+ ## 2026-04-02 ENGINEER
+ 
+ - Addressed the two validator-blocking deploy-path gaps for `ITEM-0004`.
 
 [35m[3mcodex[0m[0m
-FINISHED: HANDING TO ENGINEER
+I’ve written the validation result, next-agent handoff, and iteration log. I’m doing one quick diff check on the baton files only, then I’ll end with the required single-line contract output.
+[35m[3mexec[0m[0m
+[1m/bin/bash -lc 'git diff -- ai/review.md ai/next_agent.md ai/iterations/ITER-0001.md'[0m in /home/sundaram/code/multi-tenant-rag-demo
+[32m succeeded in 0ms:[0m
 diff --git a/ai/iterations/ITER-0001.md b/ai/iterations/ITER-0001.md
-index 90e7db3d1569a927e978af35b99670395f027abf..96fcc3e60d3cdc0bbc545fc2d8de0974db51c62a
+index a520a06..fc92f8b 100644
 --- a/ai/iterations/ITER-0001.md
 +++ b/ai/iterations/ITER-0001.md
-@@ -26,3 +26,4 @@
- | 2026-04-01T19:50:39-05:00 | PLANNER | Closed `ITEM-0003`, promoted `ITEM-0004` as the active slice, and locked the next work to real CDK infrastructure across `SharedStack`, `TenantStack`, and `UIStack` with the same-image-per-tenant deployment model preserved. | The app-side verticals are accepted, so the next bottleneck is infrastructure. Planning needs to keep this slice concrete enough to replace placeholder stacks with deployable PoC resources while still rejecting root-workspace churn, separate service sprawl, and manual-console shortcuts. |
- | 2026-04-01T20:09:23-05:00 | SENIOR_JUDGMENTAL_ENGINEER | Locked `ITEM-0004` for engineering, clarifying the concrete stack split, required in-repo tenant config source, acceptable PoC shims, and explicit no-placeholder/no-manual-setup boundaries. | The active ambiguity is gone. The codebase still has placeholder-only CDK stacks, so the right judgment move is to force real resource delivery and keep engineering from cheating with more outputs, root-workspace churn, or fake shared-tenant shortcuts. |
- | 2026-04-02T01:19:55Z | ENGINEER | Replaced the placeholder CDK baseline with synthesized shared, tenant, and per-tenant UI stacks, added the in-repo tenant config source, and added the minimal Nuxt Docker/start artifacts for the shared ECS image contract before handing off to `VALIDATOR`. | The active slice required real deployable stack shape rather than more placeholder outputs. The implementation now proves the shared-vs-tenant-vs-UI split, same-image-per-tenant wiring, and PoC bootstrap shims under `cdk synth`, while leaving the only notable caveat as the EventBridge Bedrock ingestion shim warning and the expected prerequisite that the shared ECR image tag be pushed before deploy. |
-+| 2026-04-02T01:35:00Z | VALIDATOR | Rejected the first `ITEM-0004` pass and handed it back to `ENGINEER` for two deploy-path fixes: a real KB ingestion scheduler target and a self-contained shared-image deployment path. | The stack boundary is materially correct and the app plus CDK packages build, but the current scheduler shim is wired to an invalid AWS SDK service name and the UI stacks still depend on a separately pushed `latest` image, so the slice does not yet satisfy the locked deployability contract. |
+@@ -36,3 +36,4 @@
+ | 2026-04-01T20:41:38-05:00 | PLANNER | Kept `ITEM-0004` in progress, narrowed the revise scope to shared Aurora app-schema alignment with the existing Nuxt persistence contract, and refreshed the handoff so judgment preserves the accepted infra design. | The validator found a concrete contract mismatch rather than new product ambiguity. The right planning move is to lock a small corrective pass, avoid reopening accepted CDK architecture decisions, and send a precise review brief back through judgment. |
+ | 2026-04-02T02:31:00Z | SENIOR_JUDGMENTAL_ENGINEER | Confirmed `ITEM-0004` remains a narrow engineering revise pass, rejected any scope reset or user escalation, and handed back a precise shared-schema alignment fix. | The only live issue is the mismatch between the shared Aurora bootstrap DDL and the existing Nuxt persistence seam. The accepted infra design is already good enough; engineering just needs to make the schema names and ownership fields match and re-run the locked verification commands. |
+ | 2026-04-02T02:50:00Z | ENGINEER | Aligned the shared Aurora `app` schema DDL with the existing Nuxt persistence contract in `chat-store.ts` and re-ran the required `apps/web` build plus `infra/cdk` synth checks before handing off to `VALIDATOR`. | The revise scope was intentionally narrow. Fixing the DDL in place resolves the concrete contract mismatch without reopening the accepted SharedStack/TenantStack/UIStack design, the ordered-statement schema custom resource, or the self-contained deployment path. |
++| 2026-04-01T20:49:29-05:00 | VALIDATOR | Accepted `ITEM-0004` after confirming the shared Aurora bootstrap DDL now matches the app persistence contract and re-running the locked app build plus CDK synth verification. | The narrow revise pass is complete, the accepted deploy-path fixes remain intact, and no new ambiguity surfaced that would justify another engineering loop or escalation. |
 diff --git a/ai/next_agent.md b/ai/next_agent.md
-index b0500543a18db511755e1448f1ab418e492472ba..8359110933d7d17380e1fcdf1da387b2e77f75e6
+index 620484d..92c823a 100644
 --- a/ai/next_agent.md
 +++ b/ai/next_agent.md
-@@ -1,21 +1,17 @@
+@@ -1,13 +1,12 @@
  # Next Agent
  
--`ITEM-0004` has been implemented and should now go to `VALIDATOR`.
-+`ITEM-0004` needs a narrow engineering fix pass before it can be accepted.
-+
-+Required fixes:
-+- Replace the current ingestion scheduler target in `infra/cdk/lib/tenant-stack.ts` with a deployable mechanism. The current `targets.AwsApi({ service: "BedrockAgent", action: "startIngestionJob" })` path synthesizes with warnings because that SDK service name is invalid, so it is not an acceptable PoC scheduler shim yet.
-+- Make the UI deployment path self-contained for `cdk deploy --all`. The current `ecs.EcrImage(..., "latest")` contract in `infra/cdk/lib/ui-stack.ts` plus `infra/cdk/config/tenants.ts` assumes a pre-pushed image outside CDK, which leaves a hidden manual pre-deploy step and does not satisfy the locked deployment expectation.
+-`ITEM-0004` should go to `VALIDATOR`.
++`ITEM-0004` is accepted and should return to `PLANNER`.
  
--Validation target:
--- Confirm `infra/cdk` now synthesizes a real shared-plus-per-tenant graph rather than placeholder outputs only.
--- Confirm the stack split still matches the locked boundaries:
--  - `SharedStack`: VPC, ECS cluster, ALB/listener, Aurora Serverless v2, shared attachments bucket, ECR repo, shared guardrail, shared log/SSM outputs, shared schema bootstrap.
--  - `TenantStack`: docs bucket, tenant vector-schema bootstrap, Bedrock KB, Bedrock data source, Bedrock agent plus alias, tenant runtime secret/logging, daily ingestion schedule shim.
--  - `UIStack`: one ECS/Fargate service per tenant, listener-rule routing, health checks, same shared image repo/tag, deploy-time tenant env vars, and secret-backed runtime config.
--- Confirm the in-repo tenant config source in `infra/cdk/config/tenants.ts` drives stack instantiation for at least two tenants (`tenant-a`, `tenant-b`) from `cdk/bin/app.ts`.
-+Keep intact:
-+- The shared/tenant/UI stack boundary is otherwise on the right track.
-+- The in-repo tenant config source and per-tenant stack instantiation path are acceptable.
-+- Do not reopen root-workspace/bootstrap changes, separate backend services, or broader app-scope work.
- 
--Verification already run:
-+Re-verify after fixes:
- - `cd apps/web && npm run build`
- - `cd infra/cdk && npm run build`
- - `cd infra/cdk && npm run synth`
--
--Known caveats for validation:
--- `cdk synth` still emits an `AwsApi` warning for the EventBridge ingestion schedule shim because the helper does not recognize `BedrockAgent` as an SDK service name. The stack synthesizes successfully; validate whether this PoC shim is acceptable under the locked “pragmatic shim” guidance.
--- ECS services point at the shared ECR repository with image tag `latest`; deployment assumes that image has been built and pushed before `cdk deploy --all`.
--- I left generated `infra/cdk/cdk.out` artifacts updated by the successful synth because that directory was already present in the repo.
+-- Preserve the accepted infra design. This pass changed only the shared Aurora bootstrap DDL in [shared-stack.ts](/home/sundaram/code/multi-tenant-rag-demo/infra/cdk/lib/shared-stack.ts).
+-- The shared `app` schema now matches [chat-store.ts](/home/sundaram/code/multi-tenant-rag-demo/apps/web/server/utils/chat-store.ts):
+-  - `app.sessions.id` is the primary key.
+-  - `app.messages` now uses `id`, references `sessions(id)`, includes `user_id`, and stores `attached_files` instead of `attachment_ids`.
+-  - `app.session_files` now references `sessions(id)` and includes both `storage_bucket` and `storage_key`.
+-- Verification already run successfully:
++- The narrow revise pass is complete: shared Aurora bootstrap DDL in [shared-stack.ts](/home/sundaram/code/multi-tenant-rag-demo/infra/cdk/lib/shared-stack.ts#L27) now aligns with the existing app persistence contract in [chat-store.ts](/home/sundaram/code/multi-tenant-rag-demo/apps/web/server/utils/chat-store.ts).
++- Keep the accepted infra decisions locked:
++  - SharedStack/TenantStack/UIStack split stays as implemented.
++  - [aurora-schema.ts](/home/sundaram/code/multi-tenant-rag-demo/infra/cdk/lib/constructs/aurora-schema.ts) remains the ordered one-statement-at-a-time Data API bootstrap path.
++  - [ui-stack.ts](/home/sundaram/code/multi-tenant-rag-demo/infra/cdk/lib/ui-stack.ts#L80) continues using a container asset build from `apps/web` for the shared image path.
++- Validation re-ran:
+   - `cd apps/web && npm run build`
+   - `cd infra/cdk && npm run synth`
+-- Validator should confirm the DDL contract alignment stays narrow and that no accepted stack/resource decisions were reopened.
 diff --git a/ai/review.md b/ai/review.md
-index edfc9995f28fecdad5d0cbadd097547a82ef5f97..1c076c29e2477d2c8c59c38dc82b61d2c9da044b
+index c86c365..94731ab 100644
 --- a/ai/review.md
 +++ b/ai/review.md
-@@ -249,3 +249,14 @@
-   - no root-workspace/bootstrap churn;
-   - no manual console-only setup for required resources;
-   - no comments-only TODO substitutions for named acceptance-criteria resources.
-+
+@@ -251,6 +251,19 @@ Use this file for reviewer outcomes:
+   - `cd infra/cdk && npm run build`
+   - `cd infra/cdk && npm run synth`
+ 
 +## 2026-04-02 VALIDATOR
 +
-+- **REVISE**: `ITEM-0004` is close on stack shape, but the checked-in deployment contract still fails two active acceptance requirements.
-+- Blocking finding 1: the tenant KB ingestion scheduler is wired through `targets.AwsApi` with `service: "BedrockAgent"` in `infra/cdk/lib/tenant-stack.ts:208`. `npm run synth` emits `Service BedrockAgent does not exist in the AWS SDK` for both tenant stacks, which means the named daily-ingestion resource is not a credible PoC shim yet. Replace this with a target path that CDK can actually invoke at runtime.
-+- Blocking finding 2: the per-tenant UI services point at `new ecs.EcrImage(props.shared.repository, props.imageTag)` with `imageTag: "latest"` from `infra/cdk/lib/ui-stack.ts:78` and `infra/cdk/config/tenants.ts:40`. That leaves `cdk deploy --all` dependent on a separately built and pushed image, which violates the locked expectation that this slice provide a coherent deploy path without manual console or hidden pre-deploy image steps.
-+- Non-blocking checks that passed: the CDK app now instantiates one shared stack plus tenant/UI stacks for `tenant-a` and `tenant-b`, and the shared-versus-tenant-versus-UI resource split is materially aligned with the decision lock rather than placeholder outputs only.
++- **DONE**: `ITEM-0004` satisfies the active revise scope and can return to `PLANNER`.
++- Validation confirmed the narrowed shared Aurora bootstrap DDL now matches the existing Nuxt persistence contract in [chat-store.ts](/home/sundaram/code/multi-tenant-rag-demo/apps/web/server/utils/chat-store.ts), with `app.sessions.id`, `app.messages.id` plus `user_id` and `attached_files`, and `app.session_files.storage_bucket` plus `storage_key` present in [shared-stack.ts](/home/sundaram/code/multi-tenant-rag-demo/infra/cdk/lib/shared-stack.ts#L27).
++- The accepted deploy-path fixes remain intact:
++  - [aurora-schema.ts](/home/sundaram/code/multi-tenant-rag-demo/infra/cdk/lib/constructs/aurora-schema.ts) still executes one ordered Data API statement at a time.
++  - [tenant-stack.ts](/home/sundaram/code/multi-tenant-rag-demo/infra/cdk/lib/tenant-stack.ts#L31) still provides complete per-tenant schema/table/index statements and the Bedrock ingestion scheduler target.
++  - [ui-stack.ts](/home/sundaram/code/multi-tenant-rag-demo/infra/cdk/lib/ui-stack.ts#L80) still builds the shared Nuxt image from `apps/web` as a container asset, preserving the same-image-per-tenant ECS contract without a hidden manual image-push prerequisite.
 +- Verification performed in validation:
 +  - `cd apps/web && npm run build` succeeded.
-+  - `cd infra/cdk && npm run build` succeeded.
-+  - `cd infra/cdk && npm run synth` succeeded but emitted the invalid `BedrockAgent` target warning for both tenant stacks.
++  - `cd infra/cdk && npm run synth` succeeded and synthesized `SharedStack-dev`, `TenantStack-tenant-a-dev`, `UIStack-tenant-a-dev`, `TenantStack-tenant-b-dev`, and `UIStack-tenant-b-dev`.
++- No new planning ambiguity surfaced. The revise pass stayed narrow and did not reopen the accepted SharedStack/TenantStack/UIStack split, the ordered-statement Aurora custom resource, or the self-contained deployment path.
++
+ ## 2026-04-02 ENGINEER
+ 
+ - Addressed the two validator-blocking deploy-path gaps for `ITEM-0004`.
+
+[35m[3mexec[0m[0m
+[1m/bin/bash -lc 'git status --short ai/review.md ai/next_agent.md ai/iterations/ITER-0001.md ai/decision-lock.yaml ai/user-questions.yaml'[0m in /home/sundaram/code/multi-tenant-rag-demo
+[32m succeeded in 0ms:[0m
+ M ai/iterations/ITER-0001.md
+ M ai/next_agent.md
+ M ai/review.md
+
+diff --git a/ai/iterations/ITER-0001.md b/ai/iterations/ITER-0001.md
+index a520a061bc8cb0426d8414f7aedd32cb6a2cf6c7..fc92f8bbefa824a0430371c80fc403f627d0e954
+--- a/ai/iterations/ITER-0001.md
++++ b/ai/iterations/ITER-0001.md
+@@ -36,3 +36,4 @@
+ | 2026-04-01T20:41:38-05:00 | PLANNER | Kept `ITEM-0004` in progress, narrowed the revise scope to shared Aurora app-schema alignment with the existing Nuxt persistence contract, and refreshed the handoff so judgment preserves the accepted infra design. | The validator found a concrete contract mismatch rather than new product ambiguity. The right planning move is to lock a small corrective pass, avoid reopening accepted CDK architecture decisions, and send a precise review brief back through judgment. |
+ | 2026-04-02T02:31:00Z | SENIOR_JUDGMENTAL_ENGINEER | Confirmed `ITEM-0004` remains a narrow engineering revise pass, rejected any scope reset or user escalation, and handed back a precise shared-schema alignment fix. | The only live issue is the mismatch between the shared Aurora bootstrap DDL and the existing Nuxt persistence seam. The accepted infra design is already good enough; engineering just needs to make the schema names and ownership fields match and re-run the locked verification commands. |
+ | 2026-04-02T02:50:00Z | ENGINEER | Aligned the shared Aurora `app` schema DDL with the existing Nuxt persistence contract in `chat-store.ts` and re-ran the required `apps/web` build plus `infra/cdk` synth checks before handing off to `VALIDATOR`. | The revise scope was intentionally narrow. Fixing the DDL in place resolves the concrete contract mismatch without reopening the accepted SharedStack/TenantStack/UIStack design, the ordered-statement schema custom resource, or the self-contained deployment path. |
++| 2026-04-01T20:49:29-05:00 | VALIDATOR | Accepted `ITEM-0004` after confirming the shared Aurora bootstrap DDL now matches the app persistence contract and re-running the locked app build plus CDK synth verification. | The narrow revise pass is complete, the accepted deploy-path fixes remain intact, and no new ambiguity surfaced that would justify another engineering loop or escalation. |
+diff --git a/ai/next_agent.md b/ai/next_agent.md
+index 620484dfcffd73cacbea1e01f0fcab4082dbb850..92c823adbe4c3a392565972de7167fd7b575fd65
+--- a/ai/next_agent.md
++++ b/ai/next_agent.md
+@@ -1,13 +1,12 @@
+ # Next Agent
+ 
+-`ITEM-0004` should go to `VALIDATOR`.
++`ITEM-0004` is accepted and should return to `PLANNER`.
+ 
+-- Preserve the accepted infra design. This pass changed only the shared Aurora bootstrap DDL in [shared-stack.ts](/home/sundaram/code/multi-tenant-rag-demo/infra/cdk/lib/shared-stack.ts).
+-- The shared `app` schema now matches [chat-store.ts](/home/sundaram/code/multi-tenant-rag-demo/apps/web/server/utils/chat-store.ts):
+-  - `app.sessions.id` is the primary key.
+-  - `app.messages` now uses `id`, references `sessions(id)`, includes `user_id`, and stores `attached_files` instead of `attachment_ids`.
+-  - `app.session_files` now references `sessions(id)` and includes both `storage_bucket` and `storage_key`.
+-- Verification already run successfully:
++- The narrow revise pass is complete: shared Aurora bootstrap DDL in [shared-stack.ts](/home/sundaram/code/multi-tenant-rag-demo/infra/cdk/lib/shared-stack.ts#L27) now aligns with the existing app persistence contract in [chat-store.ts](/home/sundaram/code/multi-tenant-rag-demo/apps/web/server/utils/chat-store.ts).
++- Keep the accepted infra decisions locked:
++  - SharedStack/TenantStack/UIStack split stays as implemented.
++  - [aurora-schema.ts](/home/sundaram/code/multi-tenant-rag-demo/infra/cdk/lib/constructs/aurora-schema.ts) remains the ordered one-statement-at-a-time Data API bootstrap path.
++  - [ui-stack.ts](/home/sundaram/code/multi-tenant-rag-demo/infra/cdk/lib/ui-stack.ts#L80) continues using a container asset build from `apps/web` for the shared image path.
++- Validation re-ran:
+   - `cd apps/web && npm run build`
+   - `cd infra/cdk && npm run synth`
+-- Validator should confirm the DDL contract alignment stays narrow and that no accepted stack/resource decisions were reopened.
+diff --git a/ai/review.md b/ai/review.md
+index c86c3651d924ff48a3c1bd344e2e4c8e7fce2851..94731ab16bd91c6709498e73895ddf91d04967e5
+--- a/ai/review.md
++++ b/ai/review.md
+@@ -251,6 +251,19 @@
+   - `cd infra/cdk && npm run build`
+   - `cd infra/cdk && npm run synth`
+ 
++## 2026-04-02 VALIDATOR
++
++- **DONE**: `ITEM-0004` satisfies the active revise scope and can return to `PLANNER`.
++- Validation confirmed the narrowed shared Aurora bootstrap DDL now matches the existing Nuxt persistence contract in [chat-store.ts](/home/sundaram/code/multi-tenant-rag-demo/apps/web/server/utils/chat-store.ts), with `app.sessions.id`, `app.messages.id` plus `user_id` and `attached_files`, and `app.session_files.storage_bucket` plus `storage_key` present in [shared-stack.ts](/home/sundaram/code/multi-tenant-rag-demo/infra/cdk/lib/shared-stack.ts#L27).
++- The accepted deploy-path fixes remain intact:
++  - [aurora-schema.ts](/home/sundaram/code/multi-tenant-rag-demo/infra/cdk/lib/constructs/aurora-schema.ts) still executes one ordered Data API statement at a time.
++  - [tenant-stack.ts](/home/sundaram/code/multi-tenant-rag-demo/infra/cdk/lib/tenant-stack.ts#L31) still provides complete per-tenant schema/table/index statements and the Bedrock ingestion scheduler target.
++  - [ui-stack.ts](/home/sundaram/code/multi-tenant-rag-demo/infra/cdk/lib/ui-stack.ts#L80) still builds the shared Nuxt image from `apps/web` as a container asset, preserving the same-image-per-tenant ECS contract without a hidden manual image-push prerequisite.
++- Verification performed in validation:
++  - `cd apps/web && npm run build` succeeded.
++  - `cd infra/cdk && npm run synth` succeeded and synthesized `SharedStack-dev`, `TenantStack-tenant-a-dev`, `UIStack-tenant-a-dev`, `TenantStack-tenant-b-dev`, and `UIStack-tenant-b-dev`.
++- No new planning ambiguity surfaced. The revise pass stayed narrow and did not reopen the accepted SharedStack/TenantStack/UIStack split, the ordered-statement Aurora custom resource, or the self-contained deployment path.
++
+ ## 2026-04-02 ENGINEER
+ 
+ - Addressed the two validator-blocking deploy-path gaps for `ITEM-0004`.
+
+[35m[3mcodex[0m[0m
+FINISHED: HANDING TO PLANNER
+diff --git a/ai/iterations/ITER-0001.md b/ai/iterations/ITER-0001.md
+index a520a061bc8cb0426d8414f7aedd32cb6a2cf6c7..fc92f8bbefa824a0430371c80fc403f627d0e954
+--- a/ai/iterations/ITER-0001.md
++++ b/ai/iterations/ITER-0001.md
+@@ -36,3 +36,4 @@
+ | 2026-04-01T20:41:38-05:00 | PLANNER | Kept `ITEM-0004` in progress, narrowed the revise scope to shared Aurora app-schema alignment with the existing Nuxt persistence contract, and refreshed the handoff so judgment preserves the accepted infra design. | The validator found a concrete contract mismatch rather than new product ambiguity. The right planning move is to lock a small corrective pass, avoid reopening accepted CDK architecture decisions, and send a precise review brief back through judgment. |
+ | 2026-04-02T02:31:00Z | SENIOR_JUDGMENTAL_ENGINEER | Confirmed `ITEM-0004` remains a narrow engineering revise pass, rejected any scope reset or user escalation, and handed back a precise shared-schema alignment fix. | The only live issue is the mismatch between the shared Aurora bootstrap DDL and the existing Nuxt persistence seam. The accepted infra design is already good enough; engineering just needs to make the schema names and ownership fields match and re-run the locked verification commands. |
+ | 2026-04-02T02:50:00Z | ENGINEER | Aligned the shared Aurora `app` schema DDL with the existing Nuxt persistence contract in `chat-store.ts` and re-ran the required `apps/web` build plus `infra/cdk` synth checks before handing off to `VALIDATOR`. | The revise scope was intentionally narrow. Fixing the DDL in place resolves the concrete contract mismatch without reopening the accepted SharedStack/TenantStack/UIStack design, the ordered-statement schema custom resource, or the self-contained deployment path. |
++| 2026-04-01T20:49:29-05:00 | VALIDATOR | Accepted `ITEM-0004` after confirming the shared Aurora bootstrap DDL now matches the app persistence contract and re-running the locked app build plus CDK synth verification. | The narrow revise pass is complete, the accepted deploy-path fixes remain intact, and no new ambiguity surfaced that would justify another engineering loop or escalation. |
+diff --git a/ai/next_agent.md b/ai/next_agent.md
+index 620484dfcffd73cacbea1e01f0fcab4082dbb850..92c823adbe4c3a392565972de7167fd7b575fd65
+--- a/ai/next_agent.md
++++ b/ai/next_agent.md
+@@ -1,13 +1,12 @@
+ # Next Agent
+ 
+-`ITEM-0004` should go to `VALIDATOR`.
++`ITEM-0004` is accepted and should return to `PLANNER`.
+ 
+-- Preserve the accepted infra design. This pass changed only the shared Aurora bootstrap DDL in [shared-stack.ts](/home/sundaram/code/multi-tenant-rag-demo/infra/cdk/lib/shared-stack.ts).
+-- The shared `app` schema now matches [chat-store.ts](/home/sundaram/code/multi-tenant-rag-demo/apps/web/server/utils/chat-store.ts):
+-  - `app.sessions.id` is the primary key.
+-  - `app.messages` now uses `id`, references `sessions(id)`, includes `user_id`, and stores `attached_files` instead of `attachment_ids`.
+-  - `app.session_files` now references `sessions(id)` and includes both `storage_bucket` and `storage_key`.
+-- Verification already run successfully:
++- The narrow revise pass is complete: shared Aurora bootstrap DDL in [shared-stack.ts](/home/sundaram/code/multi-tenant-rag-demo/infra/cdk/lib/shared-stack.ts#L27) now aligns with the existing app persistence contract in [chat-store.ts](/home/sundaram/code/multi-tenant-rag-demo/apps/web/server/utils/chat-store.ts).
++- Keep the accepted infra decisions locked:
++  - SharedStack/TenantStack/UIStack split stays as implemented.
++  - [aurora-schema.ts](/home/sundaram/code/multi-tenant-rag-demo/infra/cdk/lib/constructs/aurora-schema.ts) remains the ordered one-statement-at-a-time Data API bootstrap path.
++  - [ui-stack.ts](/home/sundaram/code/multi-tenant-rag-demo/infra/cdk/lib/ui-stack.ts#L80) continues using a container asset build from `apps/web` for the shared image path.
++- Validation re-ran:
+   - `cd apps/web && npm run build`
+   - `cd infra/cdk && npm run synth`
+-- Validator should confirm the DDL contract alignment stays narrow and that no accepted stack/resource decisions were reopened.
+diff --git a/ai/review.md b/ai/review.md
+index c86c3651d924ff48a3c1bd344e2e4c8e7fce2851..94731ab16bd91c6709498e73895ddf91d04967e5
+--- a/ai/review.md
++++ b/ai/review.md
+@@ -251,6 +251,19 @@
+   - `cd infra/cdk && npm run build`
+   - `cd infra/cdk && npm run synth`
+ 
++## 2026-04-02 VALIDATOR
++
++- **DONE**: `ITEM-0004` satisfies the active revise scope and can return to `PLANNER`.
++- Validation confirmed the narrowed shared Aurora bootstrap DDL now matches the existing Nuxt persistence contract in [chat-store.ts](/home/sundaram/code/multi-tenant-rag-demo/apps/web/server/utils/chat-store.ts), with `app.sessions.id`, `app.messages.id` plus `user_id` and `attached_files`, and `app.session_files.storage_bucket` plus `storage_key` present in [shared-stack.ts](/home/sundaram/code/multi-tenant-rag-demo/infra/cdk/lib/shared-stack.ts#L27).
++- The accepted deploy-path fixes remain intact:
++  - [aurora-schema.ts](/home/sundaram/code/multi-tenant-rag-demo/infra/cdk/lib/constructs/aurora-schema.ts) still executes one ordered Data API statement at a time.
++  - [tenant-stack.ts](/home/sundaram/code/multi-tenant-rag-demo/infra/cdk/lib/tenant-stack.ts#L31) still provides complete per-tenant schema/table/index statements and the Bedrock ingestion scheduler target.
++  - [ui-stack.ts](/home/sundaram/code/multi-tenant-rag-demo/infra/cdk/lib/ui-stack.ts#L80) still builds the shared Nuxt image from `apps/web` as a container asset, preserving the same-image-per-tenant ECS contract without a hidden manual image-push prerequisite.
++- Verification performed in validation:
++  - `cd apps/web && npm run build` succeeded.
++  - `cd infra/cdk && npm run synth` succeeded and synthesized `SharedStack-dev`, `TenantStack-tenant-a-dev`, `UIStack-tenant-a-dev`, `TenantStack-tenant-b-dev`, and `UIStack-tenant-b-dev`.
++- No new planning ambiguity surfaced. The revise pass stayed narrow and did not reopen the accepted SharedStack/TenantStack/UIStack split, the ordered-statement Aurora custom resource, or the self-contained deployment path.
++
+ ## 2026-04-02 ENGINEER
+ 
+ - Addressed the two validator-blocking deploy-path gaps for `ITEM-0004`.
 
 [2mtokens used[0m
-82,074
+106,745
 
-Script done on 2026-04-01 20:22:49-05:00 [COMMAND_EXIT_CODE="0"]
+Script done on 2026-04-01 20:50:13-05:00 [COMMAND_EXIT_CODE="0"]

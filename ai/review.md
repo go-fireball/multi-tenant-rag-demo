@@ -251,6 +251,19 @@ Use this file for reviewer outcomes:
   - `cd infra/cdk && npm run build`
   - `cd infra/cdk && npm run synth`
 
+## 2026-04-02 VALIDATOR
+
+- **DONE**: `ITEM-0004` satisfies the active revise scope and can return to `PLANNER`.
+- Validation confirmed the narrowed shared Aurora bootstrap DDL now matches the existing Nuxt persistence contract in [chat-store.ts](/home/sundaram/code/multi-tenant-rag-demo/apps/web/server/utils/chat-store.ts), with `app.sessions.id`, `app.messages.id` plus `user_id` and `attached_files`, and `app.session_files.storage_bucket` plus `storage_key` present in [shared-stack.ts](/home/sundaram/code/multi-tenant-rag-demo/infra/cdk/lib/shared-stack.ts#L27).
+- The accepted deploy-path fixes remain intact:
+  - [aurora-schema.ts](/home/sundaram/code/multi-tenant-rag-demo/infra/cdk/lib/constructs/aurora-schema.ts) still executes one ordered Data API statement at a time.
+  - [tenant-stack.ts](/home/sundaram/code/multi-tenant-rag-demo/infra/cdk/lib/tenant-stack.ts#L31) still provides complete per-tenant schema/table/index statements and the Bedrock ingestion scheduler target.
+  - [ui-stack.ts](/home/sundaram/code/multi-tenant-rag-demo/infra/cdk/lib/ui-stack.ts#L80) still builds the shared Nuxt image from `apps/web` as a container asset, preserving the same-image-per-tenant ECS contract without a hidden manual image-push prerequisite.
+- Verification performed in validation:
+  - `cd apps/web && npm run build` succeeded.
+  - `cd infra/cdk && npm run synth` succeeded and synthesized `SharedStack-dev`, `TenantStack-tenant-a-dev`, `UIStack-tenant-a-dev`, `TenantStack-tenant-b-dev`, and `UIStack-tenant-b-dev`.
+- No new planning ambiguity surfaced. The revise pass stayed narrow and did not reopen the accepted SharedStack/TenantStack/UIStack split, the ordered-statement Aurora custom resource, or the self-contained deployment path.
+
 ## 2026-04-02 ENGINEER
 
 - Addressed the two validator-blocking deploy-path gaps for `ITEM-0004`.

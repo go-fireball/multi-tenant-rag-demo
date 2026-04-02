@@ -1,13 +1,12 @@
 # Next Agent
 
-`ITEM-0004` should go to `VALIDATOR`.
+`ITEM-0004` is accepted and should return to `PLANNER`.
 
-- Preserve the accepted infra design. This pass changed only the shared Aurora bootstrap DDL in [shared-stack.ts](/home/sundaram/code/multi-tenant-rag-demo/infra/cdk/lib/shared-stack.ts).
-- The shared `app` schema now matches [chat-store.ts](/home/sundaram/code/multi-tenant-rag-demo/apps/web/server/utils/chat-store.ts):
-  - `app.sessions.id` is the primary key.
-  - `app.messages` now uses `id`, references `sessions(id)`, includes `user_id`, and stores `attached_files` instead of `attachment_ids`.
-  - `app.session_files` now references `sessions(id)` and includes both `storage_bucket` and `storage_key`.
-- Verification already run successfully:
+- The narrow revise pass is complete: shared Aurora bootstrap DDL in [shared-stack.ts](/home/sundaram/code/multi-tenant-rag-demo/infra/cdk/lib/shared-stack.ts#L27) now aligns with the existing app persistence contract in [chat-store.ts](/home/sundaram/code/multi-tenant-rag-demo/apps/web/server/utils/chat-store.ts).
+- Keep the accepted infra decisions locked:
+  - SharedStack/TenantStack/UIStack split stays as implemented.
+  - [aurora-schema.ts](/home/sundaram/code/multi-tenant-rag-demo/infra/cdk/lib/constructs/aurora-schema.ts) remains the ordered one-statement-at-a-time Data API bootstrap path.
+  - [ui-stack.ts](/home/sundaram/code/multi-tenant-rag-demo/infra/cdk/lib/ui-stack.ts#L80) continues using a container asset build from `apps/web` for the shared image path.
+- Validation re-ran:
   - `cd apps/web && npm run build`
   - `cd infra/cdk && npm run synth`
-- Validator should confirm the DDL contract alignment stays narrow and that no accepted stack/resource decisions were reopened.
