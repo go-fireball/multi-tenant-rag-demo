@@ -17,7 +17,7 @@ items:
     title: Implement tenant-scoped chat sessions and streaming response route
     goal: Provide the core chat experience with persisted sessions/messages and streamed assistant responses
     type: feature
-    status: in_progress
+    status: done
     priority: high
     dependencies:
       - ITEM-0001
@@ -33,7 +33,7 @@ items:
     title: Add session file upload flow with S3-backed metadata and limits
     goal: Allow PDF, DOCX, and TXT files to be attached to a chat session under the stated guardrails
     type: feature
-    status: todo
+    status: done
     priority: high
     dependencies:
       - ITEM-0001
@@ -41,17 +41,27 @@ items:
     notes:
       - Enforce max file count, per-file size, and MIME validation server-side
       - Store metadata for subsequent Bedrock reference in-session
+      - Keep the implementation inside apps/web plus allowed baton files; do not reopen infra delivery, root workspace work, or full Bedrock integration
+      - Extend the existing chat persistence and assistant seams rather than creating a separate upload-only data path
+      - A local/dev object-storage adapter is acceptable if its metadata remains S3-shaped and replaceable by real bucket wiring later
+      - Scope includes chat contract changes needed to submit fileIds with messages and preserve session attachment context for subsequent turns
+      - Defer presigned download URLs, lifecycle cleanup jobs, virus scanning, and production S3/IAM wiring unless a thin placeholder is required for coherence
   - id: ITEM-0004
     title: Provision shared and tenant AWS infrastructure with CDK
     goal: Define SharedStack, TenantStack, and UIStack for deployable PoC infrastructure
     type: feature
-    status: todo
+    status: in_progress
     priority: high
     dependencies:
       - ITEM-0001
     notes:
-      - Must include Aurora, ECS/Fargate, Secrets Manager, tenant S3 buckets, and Bedrock resources
-      - cdk deploy --all should be the intended deployment path
+      - Build this slice primarily inside infra/cdk, with app-local deployment files under apps/web only if the ECS image contract requires them
+      - Replace the current placeholder outputs with real stack resources for SharedStack, TenantStack, and UIStack while keeping the same-image-per-tenant deployment model
+      - Must include the shared platform baseline: VPC, ECS cluster, ALB, Aurora Serverless v2, Secrets Manager-backed database/admin secret, ECR repository, shared attachment bucket, and shared log/parameter resources as appropriate for the PoC
+      - Must include the tenant baseline: tenant documents bucket, Bedrock KB + Agent + alias, tenant Aurora schema setup/custom-resource path, scheduler for KB sync, and tenant-scoped IAM/log resources
+      - Must include the UI baseline: one ECS/Fargate service per tenant wired to the shared ALB with deploy-time tenant env vars and secret injection into the Nuxt task
+      - cdk deploy --all should be the intended path from the local infra/cdk package without requiring ad hoc console setup
+      - Defer CI/CD automation, production hardening, custom domains/certificates beyond a coherent placeholder strategy, and any non-CDK operational runbooks unless needed to keep the stacks internally consistent
   - id: ITEM-0005
     title: Validate tenant isolation, grounding behavior, and end-to-end acceptance
     goal: Prove the platform meets the stated PoC success criteria and key guardrails

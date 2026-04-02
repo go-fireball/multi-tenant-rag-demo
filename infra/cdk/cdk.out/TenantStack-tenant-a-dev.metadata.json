@@ -1,26 +1,78 @@
 {
+  "/TenantStack-tenant-a-dev/Custom::S3AutoDeleteObjectsCustomResourceProvider": [
+    {
+      "type": "aws:cdk:is-custom-resource-handler-customResourceProvider",
+      "data": true
+    }
+  ],
+  "/TenantStack-tenant-a-dev/AWS679f53fac002430cb0da5b7982bd2287": [
+    {
+      "type": "aws:cdk:is-custom-resource-handler-singleton",
+      "data": true
+    },
+    {
+      "type": "aws:cdk:is-custom-resource-handler-runtime-family",
+      "data": 0
+    }
+  ],
+  "/TenantStack-tenant-a-dev/KnowledgeBase": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "KnowledgeBase"
+    }
+  ],
+  "/TenantStack-tenant-a-dev/DataSource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "DataSource"
+    }
+  ],
+  "/TenantStack-tenant-a-dev/Agent": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "Agent"
+    }
+  ],
+  "/TenantStack-tenant-a-dev/AgentAlias": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "AgentAlias"
+    }
+  ],
   "/TenantStack-tenant-a-dev/TenantId": [
     {
       "type": "aws:cdk:logicalId",
       "data": "TenantId"
     }
   ],
-  "/TenantStack-tenant-a-dev/EnvironmentName": [
+  "/TenantStack-tenant-a-dev/KnowledgeBaseId": [
     {
       "type": "aws:cdk:logicalId",
-      "data": "EnvironmentName"
+      "data": "KnowledgeBaseId"
     }
   ],
-  "/TenantStack-tenant-a-dev/SharedAssetsBucketName": [
+  "/TenantStack-tenant-a-dev/AgentId": [
     {
       "type": "aws:cdk:logicalId",
-      "data": "SharedAssetsBucketName"
+      "data": "AgentId"
     }
   ],
-  "/TenantStack-tenant-a-dev/PlannedResources": [
+  "/TenantStack-tenant-a-dev/AgentAliasId": [
     {
       "type": "aws:cdk:logicalId",
-      "data": "PlannedResources"
+      "data": "AgentAliasId"
+    }
+  ],
+  "/TenantStack-tenant-a-dev/DocsBucketName": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "DocsBucketName"
+    }
+  ],
+  "/TenantStack-tenant-a-dev/TenantLogGroupName": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "TenantLogGroupName"
     }
   ],
   "/TenantStack-tenant-a-dev/BootstrapVersion": [
@@ -35,6 +87,72 @@
       "data": "CheckBootstrapVersion"
     }
   ],
+  "/TenantStack-tenant-a-dev/TenantLogGroup/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "TenantLogGroup7F4AEC3C"
+    }
+  ],
+  "/TenantStack-tenant-a-dev/DocsBucket/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "DocsBucketECEA003F"
+    },
+    {
+      "type": "aws:cdk:analytics:mixin",
+      "data": {
+        "mixin": "aws-cdk-lib.aws_s3.mixins.BucketAutoDeleteObjects"
+      }
+    }
+  ],
+  "/TenantStack-tenant-a-dev/Custom::S3AutoDeleteObjectsCustomResourceProvider/Role": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "CustomS3AutoDeleteObjectsCustomResourceProviderRole3B1BD092"
+    }
+  ],
+  "/TenantStack-tenant-a-dev/Custom::S3AutoDeleteObjectsCustomResourceProvider/Handler": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "CustomS3AutoDeleteObjectsCustomResourceProviderHandler9D90184F"
+    }
+  ],
+  "/TenantStack-tenant-a-dev/AWS679f53fac002430cb0da5b7982bd2287/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "AWS679f53fac002430cb0da5b7982bd22872D164C4C"
+    }
+  ],
+  "/TenantStack-tenant-a-dev/KnowledgeBaseRole/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "KnowledgeBaseRoleA2B317B9"
+    }
+  ],
+  "/TenantStack-tenant-a-dev/AgentRole/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "AgentRoleF4A42D6B"
+    }
+  ],
+  "/TenantStack-tenant-a-dev/IngestionSchedule/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "IngestionSchedule30858612"
+    }
+  ],
+  "/TenantStack-tenant-a-dev/SchedulerRoleForTarget-7b9c1a/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "SchedulerRoleForTarget7b9c1a083DF424"
+    }
+  ],
+  "/TenantStack-tenant-a-dev/RuntimeSecret/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "RuntimeSecret2A7665CB"
+    }
+  ],
   "/TenantStack-tenant-a-dev/CDKMetadata/Default": [
     {
       "type": "aws:cdk:logicalId",
@@ -45,6 +163,66 @@
     {
       "type": "aws:cdk:logicalId",
       "data": "CDKMetadataAvailable"
+    }
+  ],
+  "/TenantStack-tenant-a-dev/Exports/Output{\"Ref\":\"RuntimeSecret2A7665CB\"}": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "ExportsOutputRefRuntimeSecret2A7665CB0FB51646"
+    }
+  ],
+  "/TenantStack-tenant-a-dev/DocsBucket/Policy/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "DocsBucketPolicy7BCF1FB7"
+    },
+    {
+      "type": "aws:cdk:analytics:mixin",
+      "data": {
+        "mixin": "aws-cdk-lib.aws_s3.mixins.BucketPolicyStatements"
+      }
+    }
+  ],
+  "/TenantStack-tenant-a-dev/DocsBucket/AutoDeleteObjectsCustomResource/Default": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "DocsBucketAutoDeleteObjectsCustomResourceADA97380"
+    }
+  ],
+  "/TenantStack-tenant-a-dev/AWS679f53fac002430cb0da5b7982bd2287/ServiceRole/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "AWS679f53fac002430cb0da5b7982bd2287ServiceRoleC1EA0FF2"
+    }
+  ],
+  "/TenantStack-tenant-a-dev/KnowledgeBaseRole/DefaultPolicy/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "KnowledgeBaseRoleDefaultPolicyB3F66209"
+    }
+  ],
+  "/TenantStack-tenant-a-dev/AgentRole/DefaultPolicy/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "AgentRoleDefaultPolicy1027F5D2"
+    }
+  ],
+  "/TenantStack-tenant-a-dev/SchedulerRoleForTarget-7b9c1a/DefaultPolicy/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "SchedulerRoleForTarget7b9c1aDefaultPolicy03F55D35"
+    }
+  ],
+  "/TenantStack-tenant-a-dev/TenantSchema/Resource/Resource/Default": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "TenantSchemaC9A9B20C"
+    }
+  ],
+  "/TenantStack-tenant-a-dev/TenantSchema/Resource/CustomResourcePolicy/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "TenantSchemaCustomResourcePolicy53CF13B2"
     }
   ]
 }

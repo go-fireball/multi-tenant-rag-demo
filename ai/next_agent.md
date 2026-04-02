@@ -1,16 +1,18 @@
 # Next Agent
 
-`ITEM-0002` is ready for `ENGINEER`.
+Fix the remaining validator-blocking deploy defect for `ITEM-0004`.
 
-Engineering target:
-- Build the first usable chat vertical in `apps/web` only.
-- Add the minimal server routes and app wiring needed for tenant-scoped session creation/loading, message history reload, and a streamed assistant reply path.
-- Keep tenant scope server-derived only. Do not accept tenant identifiers from the caller anywhere in the request contract.
-- Put persistence behind a small Aurora-compatible seam. A local/dev adapter is fine if the contract stays replaceable and tenant-safe.
-- Preserve the locked streaming contract: client uses `fetch` `POST`, server returns a streamed response via `ReadableStream`; do not switch to EventSource.
-- A thin Bedrock adapter or deterministic stub is acceptable. Real Bedrock, uploads, OAuth completion, infra work, and production Aurora hardening are out of scope.
+Blocking issue:
+- [aurora-schema.ts](/home/sundaram/code/multi-tenant-rag-demo/infra/cdk/lib/constructs/aurora-schema.ts#L17) sends one `RDSDataService.executeStatement` request with `sql: props.sql`.
+- [shared-stack.ts](/home/sundaram/code/multi-tenant-rag-demo/infra/cdk/lib/shared-stack.ts#L140) and [tenant-stack.ts](/home/sundaram/code/multi-tenant-rag-demo/infra/cdk/lib/tenant-stack.ts#L58) both pass joined multi-statement DDL blobs into that construct.
+- The result is synth-successful but deploy-unsafe schema bootstrap. Replace it with a Data-API-compatible execution path that can reliably create the shared schema/tables and per-tenant schema/table/index resources during `cdk deploy --all`.
 
-Current baseline:
-- `ITEM-0001` is complete and accepted.
-- `apps/web` builds successfully as the starting point for feature work.
-- `infra/cdk` remains placeholder-only and should stay untouched unless judgment finds a direct contradiction, which planning does not expect.
+Keep intact:
+- The shared/tenant/UI stack boundary is otherwise acceptable.
+- The scheduler fix in [tenant-stack.ts](/home/sundaram/code/multi-tenant-rag-demo/infra/cdk/lib/tenant-stack.ts) and the self-contained Docker asset path in [ui-stack.ts](/home/sundaram/code/multi-tenant-rag-demo/infra/cdk/lib/ui-stack.ts) passed validation and should stay.
+- Do not reopen root-workspace/bootstrap changes, separate backend services, or broader app-scope work.
+
+Re-verify after fixes:
+- `cd apps/web && npm run build`
+- `cd infra/cdk && npm run build`
+- `cd infra/cdk && npm run synth`

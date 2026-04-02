@@ -1,6 +1,6 @@
-id: ITEM-0002
-title: Implement tenant-scoped chat sessions and streaming response route
-goal: Add the first usable chat vertical in apps/web with session creation/loading, persisted messages, and a streamed assistant response contract that respects tenant scoping
+id: ITEM-0004
+title: Provision shared and tenant AWS infrastructure with CDK
+goal: Replace the current placeholder infra/cdk stacks with a deployable PoC baseline that provisions shared platform resources plus per-tenant Bedrock and ECS service wiring for the existing Nuxt app, while keeping the same-image-per-tenant contract
 status: ready_for_judgment
 owner_role: SENIOR_JUDGMENTAL_ENGINEER
 related_files:
@@ -9,15 +9,17 @@ related_files:
   - ai/backlog.yaml
   - ai/decision-lock.yaml
   - ai/next_agent.md
+  - infra/cdk
   - apps/web
 acceptance_criteria:
-  - "The item stays inside the existing implementation boundary: apps/web plus allowed baton files only, with no root workspace/bootstrap changes and no new infra delivery scope"
-  - Nuxt server routes provide a minimal tenant-scoped sessions API and a chat POST route that streams responses over the locked POST plus ReadableStream pattern
-  - The implementation includes persistence interfaces or concrete storage wiring sufficient to create sessions, append messages, and reload message history in an Aurora-compatible shape
-  - Tenant identity comes from server-side environment/runtime config and is applied consistently to session and message operations; callers cannot override tenant scope in the request body
-  - The slice establishes the application contract for future Bedrock-backed responses without dragging in uploads, OAuth completion, production Aurora hardening, or full Bedrock agent integration unless a thin adapter/stub is required to make the route coherent
-  - Handoff guidance is specific enough for judgment and engineering to distinguish in-scope chat/session work from deferred upload and infrastructure work
+  - "The item stays inside infra/cdk plus minimal app-local deployment/config files under apps/web if needed for containerization or ECS runtime wiring; no root workspace/bootstrap changes and no separate backend service are introduced"
+  - "SharedStack provisions real CDK resources for the PoC baseline: VPC, ECS cluster, ALB, Aurora Serverless v2, database/admin secret handling in Secrets Manager, ECR repository, shared attachments bucket, and coherent shared logging/parameter outputs instead of placeholder-only stacks"
+  - "TenantStack provisions one-tenant-per-stack resources and permissions for the locked isolation model: tenant docs bucket, Bedrock Knowledge Base, Bedrock Agent plus alias, tenant schema setup/custom-resource path, scheduler for KB sync, and tenant-scoped IAM/log resources"
+  - "UIStack provisions one ECS/Fargate service per tenant behind the shared ALB, wiring the same application image with deploy-time tenant env vars and secret-backed runtime config for the existing Nuxt SSR app"
+  - "The CDK app includes a concrete tenant configuration source and stack instantiation path for SharedStack, TenantStack, and UIStack so `cdk deploy --all` is the intended local-package workflow"
+  - "The slice preserves the current product constraints: Nuxt server routes remain the only app backend, tenant identity stays deploy-time server config rather than caller input, and no fake shared Bedrock/KB shortcut is introduced"
+  - "The slice may use pragmatic PoC simplifications for difficult AWS edges, but it must not defer the named stack/resource categories into placeholders, manual console steps, or comments-only TODOs"
 done_definition:
-  - "Backlog marks ITEM-0001 done and advances ITEM-0002 as the current in-progress slice without disturbing the remaining sequence"
-  - Decision locks capture the chat-route boundaries, tenant-scoping rules, and streaming contract needed for this slice
-  - "ai/next_agent.md tells SENIOR_JUDGMENTAL_ENGINEER exactly what to validate: route scope, persistence contract shape, tenant isolation handling, and streaming behavior"
+  - "Backlog marks ITEM-0003 done and advances ITEM-0004 as the current in-progress slice without disturbing the remaining sequence"
+  - "Decision locks capture the required SharedStack, TenantStack, and UIStack boundaries, the same-image-per-tenant deployment contract, and the acceptable PoC simplifications for AWS wiring"
+  - "ai/next_agent.md tells SENIOR_JUDGMENTAL_ENGINEER exactly what to validate: concrete CDK resource scope, tenant-isolated Bedrock and ECS wiring, deployment/config assumptions, and what still must remain out of scope"
