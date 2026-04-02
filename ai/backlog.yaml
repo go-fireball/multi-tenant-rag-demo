@@ -67,7 +67,7 @@ items:
     title: Validate tenant isolation, grounding behavior, and end-to-end acceptance
     goal: Prove the platform meets the stated PoC success criteria and key guardrails
     type: validation
-    status: in_progress
+    status: done
     priority: medium
     dependencies:
       - ITEM-0002

@@ -12,13 +12,11 @@ related_files:
   - apps/web
   - infra/cdk
 acceptance_criteria:
-  - "The validation scope stays focused on proving the already-implemented PoC against `ai/goal.yaml` success criteria and locked decisions; it does not reopen feature scope or redesign accepted contracts"
-  - "Validation explicitly covers tenant isolation across application and persistence surfaces: runtime `TENANT_ID` controls server behavior, cross-tenant or cross-user access to sessions/files/messages is rejected, and no response or metadata path leaks content between tenants"
-  - "Validation explicitly covers the no-relevant-content path for the assistant seam and confirms the system returns a limitation/fallback response rather than pretending grounded KB support exists where it does not"
-  - "Validation re-checks the accepted end-to-end user path in the built artifact: chat UI loads, sessions/messages persist and reload, uploads remain bounded by the locked guardrails, and attachment-aware chat continues to function"
-  - "Validation re-checks the accepted infrastructure contract at the package level: the CDK app still builds/synthesizes cleanly with SharedStack, TenantStack, and UIStack using the same-image-per-tenant deployment model and aligned Aurora bootstrap DDL"
-  - "If any success criterion remains only partially provable because it requires external AWS deployment or Bedrock resources, the next review must identify that gap precisely, distinguish validated local evidence from unproven production behavior, and avoid masking the gap as complete acceptance"
+  - "Judgment treats `ITEM-0005` as locally evidence-complete and does not reopen engineering scope unless a concrete contradiction exists in the accepted validator evidence"
+  - "Judgment confirms the locally proven acceptance surface: runtime-tenant isolation, cross-user/session/file ownership enforcement, limitation-response fallback with `citations: []` when no KB grounding exists, attachment-aware follow-up chat turns, `apps/web` build success, and `infra/cdk` synth success"
+  - "Judgment explicitly distinguishes these locally proven behaviors from still-unproven external success criteria that require deployed AWS and Bedrock resources, including real multi-tenant deployments, real KB grounding/citations, `cdk deploy --all`, and Secrets Manager-backed live infrastructure"
+  - "The next review must report any remaining gaps as external proof gaps rather than as hidden implementation defects, unless the written evidence itself shows a local contract mismatch"
 done_definition:
-  - "Backlog marks ITEM-0004 done and advances ITEM-0005 as the current in-progress slice without disturbing the remaining sequence"
-  - "Decision locks preserve the accepted app and infra contracts while clarifying that the next loop is validation-first, with no new implementation scope unless a concrete defect is found"
-  - "ai/next_agent.md tells SENIOR_JUDGMENTAL_ENGINEER to judge ITEM-0005 as an evidence-driven validation slice, distinguishing proven behavior from any external-AWS assumptions"
+  - "Backlog marks `ITEM-0005` done and does not introduce a new implementation slice without fresh reviewer evidence"
+  - "Decision locks preserve the accepted app and infra contracts while clarifying that the next loop is closeout judgment, not more engineering by default"
+  - "ai/next_agent.md tells `SENIOR_JUDGMENTAL_ENGINEER` to close out the backlog against the validated local evidence and call out external AWS/Bedrock proof gaps precisely"
