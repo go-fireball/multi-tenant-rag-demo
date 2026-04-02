@@ -20,3 +20,6 @@ done_definition:
   - "Backlog marks `ITEM-0005` done and does not introduce a new implementation slice without fresh reviewer evidence"
   - "Decision locks preserve the accepted app and infra contracts while clarifying that the next loop is closeout judgment, not more engineering by default"
   - "ai/next_agent.md tells `SENIOR_JUDGMENTAL_ENGINEER` to close out the backlog against the validated local evidence and call out external AWS/Bedrock proof gaps precisely"
+notes:
+  - "This active record remains open only for closeout continuity; the backlog is already complete through ITEM-0005."
+  - "Planner should not reopen engineering or introduce a new item unless a reviewer produces a concrete contradiction in the accepted local evidence."
