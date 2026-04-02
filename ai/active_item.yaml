@@ -1,27 +1,24 @@
-id: ITEM-0004
-title: Provision shared and tenant AWS infrastructure with CDK
-goal: Replace the current placeholder infra/cdk stacks with a deployable PoC baseline that provisions shared platform resources plus per-tenant Bedrock and ECS service wiring for the existing Nuxt app, while keeping the same-image-per-tenant contract
+id: ITEM-0005
+title: Validate tenant isolation, grounding behavior, and end-to-end acceptance
+goal: Prove the implemented PoC meets the stated success criteria and guardrails across the accepted Nuxt application slices and CDK infrastructure definitions
 status: ready_for_judgment
 owner_role: SENIOR_JUDGMENTAL_ENGINEER
 related_files:
   - ai/goal.yaml
-  - ai/prd.yaml
   - ai/backlog.yaml
   - ai/decision-lock.yaml
+  - ai/review.md
   - ai/next_agent.md
-  - infra/cdk
   - apps/web
+  - infra/cdk
 acceptance_criteria:
-  - "The item stays inside infra/cdk plus minimal app-local deployment/config files under apps/web if needed for containerization or ECS runtime wiring; no root workspace/bootstrap changes and no separate backend service are introduced"
-  - "SharedStack provisions real CDK resources for the PoC baseline: VPC, ECS cluster, ALB, Aurora Serverless v2, database/admin secret handling in Secrets Manager, ECR repository, shared attachments bucket, and coherent shared logging/parameter outputs instead of placeholder-only stacks"
-  - "The shared Aurora app-schema bootstrap matches the existing Nuxt persistence contract in apps/web: `app.sessions.id`, `app.messages.id`, `app.messages.tenant_id`, `app.messages.user_id`, `app.messages.attached_files`, and `app.session_files.storage_bucket` are present with compatible ownership and reference columns"
-  - "TenantStack provisions one-tenant-per-stack resources and permissions for the locked isolation model: tenant docs bucket, Bedrock Knowledge Base, Bedrock Agent plus alias, tenant schema setup/custom-resource path, scheduler for KB sync, and tenant-scoped IAM/log resources"
-  - "UIStack provisions one ECS/Fargate service per tenant behind the shared ALB, wiring the same application image with deploy-time tenant env vars and secret-backed runtime config for the existing Nuxt SSR app"
-  - "The CDK app includes a concrete tenant configuration source and stack instantiation path for SharedStack, TenantStack, and UIStack so `cdk deploy --all` is the intended local-package workflow"
-  - "The slice preserves the current product constraints: Nuxt server routes remain the only app backend, tenant identity stays deploy-time server config rather than caller input, and no fake shared Bedrock/KB shortcut is introduced"
-  - "The slice may use pragmatic PoC simplifications for difficult AWS edges, but it must not defer the named stack/resource categories into placeholders, manual console steps, or comments-only TODOs"
-  - "This revise pass is limited to schema-contract alignment and verification; it must not reopen the accepted SharedStack/TenantStack/UIStack split, replace the provider-backed ordered-statement Aurora custom resource, or reintroduce a hidden image-push/manual-ingestion prerequisite"
+  - "The validation scope stays focused on proving the already-implemented PoC against `ai/goal.yaml` success criteria and locked decisions; it does not reopen feature scope or redesign accepted contracts"
+  - "Validation explicitly covers tenant isolation across application and persistence surfaces: runtime `TENANT_ID` controls server behavior, cross-tenant or cross-user access to sessions/files/messages is rejected, and no response or metadata path leaks content between tenants"
+  - "Validation explicitly covers the no-relevant-content path for the assistant seam and confirms the system returns a limitation/fallback response rather than pretending grounded KB support exists where it does not"
+  - "Validation re-checks the accepted end-to-end user path in the built artifact: chat UI loads, sessions/messages persist and reload, uploads remain bounded by the locked guardrails, and attachment-aware chat continues to function"
+  - "Validation re-checks the accepted infrastructure contract at the package level: the CDK app still builds/synthesizes cleanly with SharedStack, TenantStack, and UIStack using the same-image-per-tenant deployment model and aligned Aurora bootstrap DDL"
+  - "If any success criterion remains only partially provable because it requires external AWS deployment or Bedrock resources, the next review must identify that gap precisely, distinguish validated local evidence from unproven production behavior, and avoid masking the gap as complete acceptance"
 done_definition:
-  - "Backlog marks ITEM-0003 done and advances ITEM-0004 as the current in-progress slice without disturbing the remaining sequence"
-  - "Decision locks capture the required SharedStack, TenantStack, and UIStack boundaries, the same-image-per-tenant deployment contract, the accepted PoC simplifications for AWS wiring, and the narrowed shared-schema alignment fix"
-  - "ai/next_agent.md tells SENIOR_JUDGMENTAL_ENGINEER to preserve the accepted infra design and route only the shared-schema contract correction plus build/synth re-verification"
+  - "Backlog marks ITEM-0004 done and advances ITEM-0005 as the current in-progress slice without disturbing the remaining sequence"
+  - "Decision locks preserve the accepted app and infra contracts while clarifying that the next loop is validation-first, with no new implementation scope unless a concrete defect is found"
+  - "ai/next_agent.md tells SENIOR_JUDGMENTAL_ENGINEER to judge ITEM-0005 as an evidence-driven validation slice, distinguishing proven behavior from any external-AWS assumptions"

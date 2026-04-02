@@ -50,7 +50,7 @@ items:
     title: Provision shared and tenant AWS infrastructure with CDK
     goal: Define SharedStack, TenantStack, and UIStack for deployable PoC infrastructure
     type: feature
-    status: in_progress
+    status: done
     priority: high
     dependencies:
       - ITEM-0001
@@ -67,14 +67,18 @@ items:
     title: Validate tenant isolation, grounding behavior, and end-to-end acceptance
     goal: Prove the platform meets the stated PoC success criteria and key guardrails
     type: validation
-    status: todo
+    status: in_progress
     priority: medium
     dependencies:
       - ITEM-0002
       - ITEM-0003
       - ITEM-0004
     notes:
-      - Include no-relevant-content behavior and cross-tenant isolation checks
+      - Validate the accepted `apps/web` and `infra/cdk` slices together rather than reopening implementation scope
+      - Include runtime-tenant isolation checks across at least two tenant deployments/configurations and confirm no cross-tenant content appears in chat responses, persistence, or attachment metadata
+      - Include no-relevant-content behavior and verify the assistant returns the KB limitation path rather than fabricated grounded citations when content is absent
+      - Cover the end-to-end acceptance path: session persistence, attachment-aware chat flow, and CDK synth/deployability evidence appropriate to the current PoC codebase
+      - Prefer concrete executable validation artifacts already available in-repo; if a success criterion cannot be fully proven locally, identify the exact remaining external dependency rather than broadening implementation scope
 # Example format — PLANNER creates and curates concrete items from ai/goal.yaml:
 #  - id: ITEM-0001
 #    title: Build user authentication
