@@ -534,3 +534,25 @@ Use this file for reviewer outcomes:
   - Real KB grounding, reranking (top_k=12 → top 5), and citation behavior.
   - Real Aurora Serverless v2, S3, Secrets Manager, and Google OAuth live behavior.
 - Loop termination judgment: continuing to cycle without user direction produces no value. Escalating to the user to confirm whether to (a) proceed to real AWS deployment/validation, (b) scope a new implementation item, or (c) accept local completion as the current deliverable.
+
+## 2026-04-02 SENIOR_JUDGMENTAL_ENGINEER (final closeout — awaiting user direction)
+
+- **DONE (locally)**: The backlog is evidence-complete through `ITEM-0005`. All items are `done`. No concrete contradiction exists in the written record. The validator re-ran the full local proof suite and found nothing new to fix.
+- Locally confirmed behaviors (unchanged):
+  - `cd apps/web && npm run build` succeeds.
+  - `cd infra/cdk && npm run synth` succeeds (synthesizes `SharedStack-dev`, two `TenantStack-*-dev`, two `UIStack-*-dev`).
+  - Runtime `TENANT_ID` env var governs tenant scope on the built server; client callers cannot override it.
+  - Session, message, and file ownership fail closed across user and tenant boundaries.
+  - Upload limits are enforced atomically; partial-success is rejected.
+  - `POST /api/chat` without `fileIds` omits new attachments on that turn without failing; explicit invalid `fileIds` still return `400`.
+  - No-relevant-content path streams a limitation message and persists `citations: []` — no synthetic grounded artifact.
+  - Aurora bootstrap DDL in `shared-stack.ts` matches the Nuxt `chat-store.ts` persistence contract (`id`, `user_id`, `attached_files`, `storage_bucket`, `storage_key`).
+- External proof gaps that cannot be resolved locally (require real AWS infrastructure):
+  - `cdk deploy --all` from scratch against a real AWS account.
+  - Real per-tenant ECS Fargate deployments with Aurora, Secrets Manager, and ECR wiring.
+  - Real Bedrock Agent and Knowledge Base isolation per tenant — hard-isolation contract not yet exercised.
+  - Real KB grounding, semantic chunking, top_k=12 → reranked top 5, and citation behavior.
+  - Real Aurora Serverless v2 RDS Data API schema bootstrap under `cdk deploy --all`.
+  - S3 file storage, Bedrock KB ingestion via EventBridge Scheduler, and Google OAuth live behavior.
+- `ai/requirements.md` remains template residue and should not be used to reopen scope.
+- No further engineering is justified from the local record alone. Awaiting user direction on next step: real-environment deployment, a new scoped item, or acceptance of local completion as the current deliverable.

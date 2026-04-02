@@ -1,17 +1,17 @@
 # Next Agent
 
-`SENIOR_JUDGMENTAL_ENGINEER` should treat the repo as backlog-complete through `ITEM-0005` unless the written record now contains a concrete contradiction.
+Awaiting user response to `Q-CLOSEOUT-001` in `ai/user-questions.yaml`.
 
-- `ITEM-0005` is already `done` in the backlog; the active item stays `ready_for_judgment` only to preserve baton continuity.
-- The latest validator pass found no contradiction in the accepted local evidence and made no repo changes.
-- Fresh proof still covers:
-  - `cd apps/web && npm run build`
-  - `cd infra/cdk && npm run synth`
-  - live built-server checks with runtime `TENANT_ID=tenant-alpha`
-  - tenant isolation, ownership enforcement, limitation fallback with `citations: []`, and follow-up turns that may omit `fileIds`
-- Remaining gaps are external proof gaps only:
-  - real `cdk deploy --all`
-  - real per-tenant AWS deployments
-  - real Bedrock grounding and citation behavior
-  - live Aurora, S3, Secrets Manager, and Google OAuth integrations
-- Default closeout action: affirm backlog completion and keep any further work categorized as either a new scoped item or real-environment proof work.
+`SENIOR_JUDGMENTAL_ENGINEER` has issued the final closeout judgment:
+
+- All five backlog items (`ITEM-0001` through `ITEM-0005`) are `done`.
+- Local evidence is coherent and the validator found no contradiction after multiple re-runs.
+- The baton loop has been cycling in no-op mode; no engineering changes have been made since `ITEM-0005` was accepted.
+- External proof gaps (real AWS deployment, Bedrock grounding, live Aurora/S3/Secrets Manager/OAuth) are correctly categorized as external work, not hidden local defects.
+
+**Do not reopen engineering or loop through ENGINEER → VALIDATOR → PLANNER without a user answer to `Q-CLOSEOUT-001`.**
+
+When the user responds:
+- Option (a): PLANNER should create a new `ITEM-0006` scoped to real AWS deployment and live validation.
+- Option (b): PLANNER should create a new scoped item based on the user's specified feature or fix.
+- Option (c): Mark `ITEM-0005` as the final deliverable and terminate the loop.
