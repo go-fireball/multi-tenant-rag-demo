@@ -1,5 +1,5 @@
 confirmed_by_user: true
-blocked_on_user: false
+blocked_on_user: true
 last_user_decision: "Project goal and PRD established on 2026-04-01 as the authoritative stack and scope source"
 approved_exceptions:
   - "Direct Aurora access is allowed only in dev/PoC environments under DEC-009 guardrails"
@@ -17,3 +17,4 @@ approved_decisions:
   - "PoC auth path is Google OAuth, with no-auth/browser UUID only as a fallback if explicitly deferred"
   - "Normalize the repo layout to a root workspace with apps/web for the Nuxt application and infra/cdk for the CDK application"
   - "ITEM-0001 is scaffold-only: create minimal workspace/config/runtime entrypoints and placeholder stack wiring, but defer chat, uploads, Aurora integration, Bedrock integration, and any production-grade infra implementation details"
+  - "Execution is paused pending a user decision on the contract conflict between ITEM-0001's required root workspace files and the ENGINEER prompt's current allowed-edit boundary"

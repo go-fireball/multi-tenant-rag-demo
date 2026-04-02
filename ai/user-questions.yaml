@@ -1,3 +1,22 @@
-status: none
-return_to_role: null
-questions: []
+status: waiting
+return_to_role: SENIOR_JUDGMENTAL_ENGINEER
+questions:
+  - id: Q-0001
+    title: Resolve engineer edit-boundary conflict for ITEM-0001
+    context: >
+      ITEM-0001 requires a root npm workspace setup plus shared TypeScript config,
+      but the current ENGINEER role prompt only allows edits under apps/**,
+      infra/**, selected ai/**, and related tests/docs. The repo has no existing
+      root package.json, lockfile, or shared tsconfig, so implementation is blocked
+      by the prompt contract rather than by product ambiguity.
+    options:
+      - value: expand_engineer_contract
+        description: >
+          Update the ENGINEER prompt to allow the minimum required root-level
+          workspace/config files for ITEM-0001, such as package.json, package-lock.json,
+          tsconfig.base.json, .gitignore, and similar baseline metadata.
+      - value: rescope_item_0001
+        description: >
+          Re-scope ITEM-0001 so it fits entirely within the current ENGINEER
+          edit boundary and no longer requires root workspace normalization.
+    status: waiting

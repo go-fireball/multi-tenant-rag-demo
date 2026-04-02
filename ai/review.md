@@ -20,3 +20,10 @@ Use this file for reviewer outcomes:
 - The item's accepted scope explicitly requires a root workspace package manager setup and shared TypeScript config, but the engineer prompt only permits edits under `apps/**`, `infra/**`, selected `ai/**`, and related tests/docs.
 - The repo currently has no root `package.json`, lockfile, or shared `tsconfig`, so implementation would require root-level file creation.
 - Judgment should either expand the allowed edit list for ENGINEER to include the required root workspace/config files or narrow the item scope to fit the current contract.
+
+## 2026-04-01 SENIOR_JUDGMENTAL_ENGINEER
+
+- **ESCALATE**: the active-item scope and the engineer role contract are still mutually inconsistent, and this role cannot repair that mismatch within its allowed edit set.
+- `ITEM-0001`, `ai/simplification.md`, and `ai/decision-lock.yaml` correctly insist on a root `npm` workspace plus shared TypeScript config for the baseline scaffold.
+- `ai/prompts/02-engineer.md` still forbids those root-level edits, and this role is not permitted to modify prompt contracts or the active-item definition directly.
+- A user-level decision is required: either permit the engineer prompt to include the minimum root workspace/config files, or re-scope the item so the scaffold no longer requires them.
