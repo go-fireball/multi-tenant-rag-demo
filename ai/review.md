@@ -238,6 +238,18 @@ Use this file for reviewer outcomes:
 
 - Implemented the narrow `ITEM-0004` revise pass by correcting the shared Aurora `app` schema DDL in [shared-stack.ts](/home/sundaram/code/multi-tenant-rag-demo/infra/cdk/lib/shared-stack.ts) to match the existing Nuxt persistence contract in [chat-store.ts](/home/sundaram/code/multi-tenant-rag-demo/apps/web/server/utils/chat-store.ts).
 - Updated `app.sessions` to use primary key column `id`, updated `app.messages` to use `id`, include `user_id`, reference `sessions(id)`, and store `attached_files`, and updated `app.session_files` to reference `sessions(id)` and include `storage_bucket`.
+
+## 2026-04-02 ENGINEER
+
+- Implemented the narrow `ITEM-0005` follow-up revise pass in [chat.post.ts](/home/sundaram/code/multi-tenant-rag-demo/apps/web/server/api/chat.post.ts).
+- Changed attachment lookup so `POST /api/chat` only loads and validates attachments when the caller explicitly provides non-empty `fileIds`; omitting `fileIds` now means "no new attachments for this turn" instead of implicitly selecting every session file.
+- Preserved the existing ownership checks for explicit attachments: invalid or stolen `fileIds` still fail with `400 One or more fileIds are invalid for this tenant, user, or session`.
+- Verification performed:
+  - `cd apps/web && npm run build` succeeded.
+  - `cd infra/cdk && npm run synth` succeeded.
+  - Ran the built Nuxt server with `TENANT_ID=tenant-alpha`.
+  - Reproduced the validator flow end to end: created a session for `user-a`, uploaded `note.txt`, completed a first streamed chat turn with the uploaded `fileId`, then completed a second streamed chat turn in the same session with no `fileIds`.
+  - The second turn returned `HTTP/1.1 200 OK`, the saved second user message persisted with `attached_files: []`, and the persisted assistant reply kept the fixed limitation behavior with `citations: []` while still referencing recent session-file metadata in its content.
 - Left the accepted stack boundaries and ordered-statement Aurora custom resource unchanged.
 - Verification performed:
   - `cd apps/web && npm run build` succeeded.

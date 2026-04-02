@@ -17,7 +17,8 @@ export default defineEventHandler(async event => {
   const body = await readBody<ChatRequestBody>(event)
   const userId = body?.userId?.trim()
   const message = body?.message?.trim()
-  const fileIds = Array.isArray(body?.fileIds)
+  const hasExplicitFileIds = Array.isArray(body?.fileIds)
+  const fileIds = hasExplicitFileIds
     ? body.fileIds.filter((fileId): fileId is string => typeof fileId === "string" && fileId.trim().length > 0)
     : []
 
@@ -53,14 +54,16 @@ export default defineEventHandler(async event => {
     })
   }
 
-  const attachedFiles = store.getSessionFiles({
-    tenantId,
-    sessionId: session.id,
-    userId,
-    fileIds,
-  })
+  const attachedFiles = fileIds.length > 0
+    ? store.getSessionFiles({
+      tenantId,
+      sessionId: session.id,
+      userId,
+      fileIds,
+    })
+    : []
 
-  if (attachedFiles.length !== fileIds.length) {
+  if (hasExplicitFileIds && fileIds.length > 0 && attachedFiles.length !== fileIds.length) {
     throw createError({
       statusCode: 400,
       statusMessage: "One or more fileIds are invalid for this tenant, user, or session",
