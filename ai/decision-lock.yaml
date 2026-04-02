@@ -1,6 +1,6 @@
 confirmed_by_user: true
-blocked_on_user: true
-last_user_decision: "Project goal and PRD established on 2026-04-01 as the authoritative stack and scope source"
+blocked_on_user: false
+last_user_decision: "On 2026-04-01 the user chose `rescope_item_0001`, keeping implementation inside the current ENGINEER edit boundary and deferring required root-level workspace/config files from this item."
 approved_exceptions:
   - "Direct Aurora access is allowed only in dev/PoC environments under DEC-009 guardrails"
   - "Browser UUID may be used as a temporary userId fallback only if Google OAuth is deferred during PoC setup"
@@ -16,5 +16,5 @@ approved_decisions:
   - "Target AWS deployment on ECS Fargate with secrets stored in Secrets Manager"
   - "PoC auth path is Google OAuth, with no-auth/browser UUID only as a fallback if explicitly deferred"
   - "Normalize the repo layout to a root workspace with apps/web for the Nuxt application and infra/cdk for the CDK application"
-  - "ITEM-0001 is scaffold-only: create minimal workspace/config/runtime entrypoints and placeholder stack wiring, but defer chat, uploads, Aurora integration, Bedrock integration, and any production-grade infra implementation details"
-  - "Execution is paused pending a user decision on the contract conflict between ITEM-0001's required root workspace files and the ENGINEER prompt's current allowed-edit boundary"
+  - "The long-term repo shape still targets apps/web for the Nuxt application and infra/cdk for the CDK application, but ITEM-0001 must stay within the current ENGINEER edit boundary and therefore does not include root workspace normalization yet"
+  - "ITEM-0001 is scaffold-only: create minimal in-scope app/config/runtime entrypoints under apps/web and placeholder stack wiring under infra/cdk, but defer chat, uploads, Aurora integration, Bedrock integration, root workspace/bootstrap files, and any production-grade infra implementation details"

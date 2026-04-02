@@ -27,3 +27,11 @@ Use this file for reviewer outcomes:
 - `ITEM-0001`, `ai/simplification.md`, and `ai/decision-lock.yaml` correctly insist on a root `npm` workspace plus shared TypeScript config for the baseline scaffold.
 - `ai/prompts/02-engineer.md` still forbids those root-level edits, and this role is not permitted to modify prompt contracts or the active-item definition directly.
 - A user-level decision is required: either permit the engineer prompt to include the minimum root workspace/config files, or re-scope the item so the scaffold no longer requires them.
+
+## 2026-04-01 SENIOR_JUDGMENTAL_ENGINEER
+
+- **DONE**: the user resolved the contract conflict by choosing `rescope_item_0001`, so implementation should continue without any root-level workspace/config work in this slice.
+- Treat the human answer as authoritative over the earlier scaffold language: ENGINEER should build only what fits inside `apps/**` and `infra/**` plus already-allowed baton artifacts.
+- The revised implementation target is a lean baseline with `apps/web` Nuxt entrypoints and `infra/cdk` placeholder stack/app wiring only. If either subtree needs local config files, keep them inside those directories.
+- Reject any attempt to recreate the old blocked scope through root `package.json`, shared root `tsconfig`, or other repo-top workspace bootstrap files. That work is explicitly deferred, not accidentally omitted.
+- `ai/requirements.md` remains template-grade and non-authoritative. ENGINEER should follow the locked decisions, the human rescope answer, and this review note instead.

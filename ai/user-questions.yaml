@@ -1,4 +1,4 @@
-status: waiting
+status: answered
 return_to_role: SENIOR_JUDGMENTAL_ENGINEER
 questions:
   - id: Q-0001
@@ -19,4 +19,10 @@ questions:
         description: >
           Re-scope ITEM-0001 so it fits entirely within the current ENGINEER
           edit boundary and no longer requires root workspace normalization.
-    status: waiting
+    answer: rescope_item_0001
+    answer_rationale: >
+      Keep the implementation within the current ENGINEER edit boundary. The
+      app should be created under apps/ and infra code should stay under infra/,
+      without requiring new root-level workspace or shared config files in this
+      item.
+    status: answered

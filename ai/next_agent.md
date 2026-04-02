@@ -1,14 +1,15 @@
 # Next Agent
 
-Active item: `ITEM-0001` is waiting on a user decision before baton work can continue.
+Active item: `ITEM-0001` is unblocked and ready for implementation.
 
-Blocking conflict:
-- `ai/active_item.yaml`, `ai/decision-lock.yaml`, `ai/simplification.md`, and the prior review notes all require a root `npm` workspace setup plus shared TypeScript config.
-- `ai/prompts/02-engineer.md` forbids root-level edits by ENGINEER. The allowed edits list excludes the required root files (`package.json`, workspace lockfile, shared `tsconfig`, and similar baseline metadata).
-- The repo currently has none of those root files, so engineering cannot satisfy the accepted scope without breaking the role contract.
+Required scope for ENGINEER:
+- Implement only what fits inside the current engineer contract: scaffold `apps/web` and `infra/cdk`, plus any app-local config files that live inside those directories.
+- Build a minimal Nuxt 4 baseline in `apps/web` and placeholder CDK app/stack wiring in `infra/cdk`.
+- Keep the stack aligned with the project sources: Nuxt 4 + Nitro server routes, TypeScript, AWS CDK, shared/tenant separation.
 
-Requested user decision:
-- Either permit the engineer prompt to include the minimum root workspace/config files required for `ITEM-0001`
-- Or re-scope `ITEM-0001` so it no longer requires root workspace normalization
+Explicitly out of scope in this slice:
+- Any root-level `package.json`, lockfile, root `tsconfig`, or other workspace bootstrap files
+- Separate backend services, Lambda app logic, chat behavior, uploads, Aurora integration, Bedrock integration, auth implementation, or production-hardening work
 
-No implementation files were changed in `apps/` or `infra/`; this stop is purely to resolve the contract mismatch before coding resumes.
+Execution note:
+- The human already chose `rescope_item_0001`; do not reopen the root-workspace conflict unless a new constraint appears that cannot be solved inside `apps/**` and `infra/**`.

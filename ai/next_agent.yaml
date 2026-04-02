@@ -1,7 +1,3 @@
-next_role: HUMAN
+next_role: SENIOR_JUDGMENTAL_ENGINEER
 handoff_notes: |
-  Blocked on user input from SENIOR_JUDGMENTAL_ENGINEER
-return_to: SENIOR_JUDGMENTAL_ENGINEER
-escalated_by: SENIOR_JUDGMENTAL_ENGINEER
-escalation_reason: |
-  Unresolved ambiguity or business-context decision required
+  Resuming baton after HUMAN answers
