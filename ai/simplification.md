@@ -26,3 +26,7 @@
 24. For `ITEM-0004`, TenantStack should own hard-isolation resources per tenant: docs bucket, KB, agent plus alias, schema/bootstrap path, scheduler, and tenant IAM/logging.
 25. For `ITEM-0004`, UIStack should consume shared outputs and tenant config to create the per-tenant Fargate service and ALB rule for the same-image-per-tenant deployment model.
 26. For `ITEM-0004`, defer CI/CD, custom domains, production autoscaling polish, and deep operational tooling unless a minimal in-scope resource is required to keep `cdk deploy --all` coherent.
+27. For the `ITEM-0005` revise pass, keep the scope narrow: fix only the assistant fallback/grounding contract and any validation evidence notes required to accept the slice.
+28. For the `ITEM-0005` revise pass, do not reopen the accepted session, upload, tenant-isolation, or CDK architecture work unless the fallback fix exposes a concrete defect there.
+29. For the `ITEM-0005` revise pass, the local assistant seam must stop pretending grounded KB support exists when it does not; if no bounded session/file evidence supports an answer, return a clear limitation message and no synthetic citation.
+30. For the `ITEM-0005` revise pass, preserve the existing POST-streaming contract and persistence shape so the fix is compatible with the later Bedrock adapter rather than another rewrite.

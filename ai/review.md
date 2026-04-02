@@ -219,6 +219,21 @@ Use this file for reviewer outcomes:
 - The current codebase still contains placeholder-only CDK stacks in [infra/cdk/lib/shared-stack.ts](/home/sundaram/code/multi-tenant-rag-demo/infra/cdk/lib/shared-stack.ts) and [infra/cdk/lib/tenant-stack.ts](/home/sundaram/code/multi-tenant-rag-demo/infra/cdk/lib/tenant-stack.ts); engineering should treat that as debt to replace, not a scaffold to decorate with more outputs.
 - `ai/requirements.md` remains template residue and is not authoritative for this item. Source of truth is `ai/goal.yaml`, `ai/prd.yaml`, `ai/active_item.yaml`, `ai/decision-lock.yaml`, and the item-specific simplification rules.
 
+## 2026-04-02 SENIOR_JUDGMENTAL_ENGINEER
+
+- **REVISE**: `ITEM-0005` is not acceptable yet. There is no user ambiguity, but there is a concrete product-contract defect in the assistant fallback path.
+- Local validation that passed:
+  - `cd apps/web && npm run build`
+  - `cd infra/cdk && npm run synth`
+  - Running the built Nuxt server with `TENANT_ID=tenant-alpha` confirmed runtime tenant scoping at `/api/health`, tenant/user-scoped session creation, `404` for cross-user session reads, atomic file ownership enforcement, and POST-streamed chat persistence with attachment metadata.
+- The acceptance blocker is in [chat-assistant.ts](/home/sundaram/code/multi-tenant-rag-demo/apps/web/server/utils/chat-assistant.ts): the current implementation always returns a deterministic `"assistant stub response"` plus a synthetic citation like `tenant-kb://<tenant>/local-stub`, even when the question has no grounded KB evidence. That directly conflicts with the success criterion requiring a KB limitation message instead of a hallucinated or fake-grounded answer.
+- The live response from [chat.post.ts](/home/sundaram/code/multi-tenant-rag-demo/apps/web/server/api/chat.post.ts) proves the mismatch: the streamed assistant reply for an arbitrary question still ends with `"This deterministic placeholder preserves the chat contract until the Bedrock adapter is wired in."` and persists the synthetic citation. That is honest developer text, but it is not the accepted product behavior.
+- Keep the revise scope narrow:
+  - Preserve the existing tenant/user/file isolation behavior and the current POST `ReadableStream` chat contract.
+  - Preserve the existing persistence shape in [chat-store.ts](/home/sundaram/code/multi-tenant-rag-demo/apps/web/server/utils/chat-store.ts) and the accepted CDK package state.
+  - Fix only the assistant seam so that locally ungrounded questions return a clear limitation response and no fake citation, while still allowing bounded session/file context to inform replies when there is actual local evidence to summarize.
+  - After the fix, re-run `cd apps/web && npm run build` and perform a live POST `/api/chat` check showing the no-relevant-content limitation path instead of the current synthetic grounded stub.
+
 ## 2026-04-02 ENGINEER
 
 - Implemented the narrow `ITEM-0004` revise pass by correcting the shared Aurora `app` schema DDL in [shared-stack.ts](/home/sundaram/code/multi-tenant-rag-demo/infra/cdk/lib/shared-stack.ts) to match the existing Nuxt persistence contract in [chat-store.ts](/home/sundaram/code/multi-tenant-rag-demo/apps/web/server/utils/chat-store.ts).

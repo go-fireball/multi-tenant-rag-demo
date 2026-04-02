@@ -66,3 +66,6 @@ approved_decisions:
   - "For ITEM-0005, tenant isolation evidence must cover runtime tenant configuration, session/message/file ownership enforcement, and the absence of cross-tenant leakage in persisted metadata or assistant response paths"
   - "For ITEM-0005, validate the current no-relevant-content assistant behavior against the PoC contract and call out any mismatch between the local stubbed seam and the eventual Bedrock-backed acceptance criterion"
   - "For ITEM-0005, keep the accepted implementation boundaries intact unless validation finds a concrete defect; do not reopen root workspace changes, auth expansion, separate services, or infra redesign during the validation pass"
+  - "Current ITEM-0005 outcome is a narrow engineering revise pass, not acceptance: the local assistant seam still emits a synthetic grounded-looking stub response and citation instead of a limitation response when no real KB grounding exists"
+  - "For the ITEM-0005 revise pass, preserve the existing tenant-scoped session/upload/message behavior and CDK package state; fix only the assistant fallback contract plus any minimal validation notes needed to prove it"
+  - "For the ITEM-0005 revise pass, do not solve the fallback mismatch by inventing fake citations, widening scope into real Bedrock integration, or weakening the existing POST streaming contract"
